@@ -1,22 +1,10 @@
 /** Positions are percentages of the frame width, counted from the physical left edge. */
 
-/** How close (in %) the divider has to come to its resting place for the "magnet" to take it. */
-export const SNAP_RANGE = 2.5;
-
 /** Where the divider rests when the window is too narrow to show two panes: the middle. */
 export const SINGLE_PANE_REST = 50;
 
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
-}
-
-/** Magnet: a position within `range` of the anchor snaps onto it; everything else is left alone. */
-export function snap(
-  value: number,
-  anchor: number | null,
-  range: number = SNAP_RANGE,
-): number {
-  return anchor !== null && Math.abs(value - anchor) <= range ? anchor : value;
 }
 
 interface Box {

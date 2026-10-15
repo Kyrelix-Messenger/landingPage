@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import { describe, it } from "node:test";
 import { LOCALES, type LocaleCode } from "../src/shared/boot/boot.ts";
 import { en, type Dictionary } from "../src/shared/i18n/dictionaries/en.ts";
@@ -58,25 +58,6 @@ const DASHES = [0x2010, 0x2011, 0x2012, 0x2013, 0x2014, 0x2015].map((point) =>
 );
 
 describe("language list", () => {
-  it("matches the messenger: same codes, names and order", (t) => {
-    const file = new URL(
-      "../../frontend/src/shared/i18n/model/localeStore.ts",
-      import.meta.url,
-    );
-    if (!existsSync(file)) return t.skip("frontend/ is not next to site/");
-
-    const messenger = [
-      ...readFileSync(file, "utf8").matchAll(
-        /\{\s*code:\s*"([a-z]+)"\s*,\s*name:\s*"([^"]+)"\s*\}/g,
-      ),
-    ].map((match) => ({ code: match[1], name: match[2] }));
-    assert.equal(messenger.length, 10);
-    assert.deepEqual(
-      LOCALES.map(({ code, name }) => ({ code, name })),
-      messenger,
-    );
-  });
-
   it("sets the right lang and direction", () => {
     const byCode = Object.fromEntries(
       LOCALES.map((locale) => [locale.code, locale]),

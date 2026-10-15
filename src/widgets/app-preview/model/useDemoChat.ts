@@ -8,7 +8,7 @@ import {
   type Person,
   type Section,
 } from "./demoData";
-import { INTRO, REPLY_AT, REPLY_TYPING_AT, type IntroStep } from "./pacing";
+import { INTRO, READ_DELAY, REPLY_AT, type IntroStep } from "./pacing";
 
 export interface ChatMessage {
   id: string;
@@ -148,14 +148,13 @@ function introAction(step: IntroStep): Action {
   return { type: "typing", chat: step.kind === "typing-on" ? "mia" : null };
 }
 
-/** All state of the interactive preview: chats, the typed draft, the auto-replies and the intro. */
+/** All state of the interactive preview: chats, the auto-replies and the intro. */
 export function useDemoChat(autoplay: boolean) {
   const [state, dispatch] = useReducer(reducer, autoplay, initialState);
   const [section, setSection] = useState<Section>("chats");
   const [activeId, setActiveId] = useState<ChatId>("mia");
   const [pane, setPane] = useState<"list" | "chat">("chat");
   const [query, setQuery] = useState("");
-  const [draft, setDraft] = useState("");
   const [side, setSide] = useState<"end" | "start">("end");
   const introTimers = useRef<number[]>([]);
   const replyTimers = useRef<number[]>([]);
@@ -219,32 +218,39 @@ export function useDemoChat(autoplay: boolean) {
     [finishIntro],
   );
 
-  const send = useCallback(() => {
-    const text = draft.trim();
-    const chat = chatById(activeId);
-    if (!text || chat.kind === "channel") return;
-    finishIntro();
-    dispatch({ type: "send", chat: activeId, text });
-    setDraft("");
-    const target = activeId;
-    replyTimers.current.push(
-      window.setTimeout(
-        () => dispatch({ type: "typing", chat: target }),
-        REPLY_TYPING_AT,
-      ),
-    );
-    replyTimers.current.push(
-      window.setTimeout(
-        () =>
-          dispatch({
-            type: "reply",
-            chat: target,
-            unread: activeRef.current !== target,
-          }),
-        REPLY_AT,
-      ),
-    );
-  }, [activeId, draft, finishIntro]);
+  const send = useCallback(
+    (raw: string) => {
+      const text = raw.trim();
+      const chat = chatById(activeId);
+      if (!text || chat.kind === "channel") return;
+      finishIntro();
+      dispatch({ type: "send", chat: activeId, text });
+      const target = activeId;
+      replyTimers.current.push(
+        window.setTimeout(
+          () => dispatch({ type: "typing", chat: target }),
+          READ_DELAY,
+        ),
+      );
+      replyTimers.current.push(
+        window.setTimeout(
+          () =>
+            dispatch({
+              type: "reply",
+              chat: target,
+              unread: activeRef.current !== target,
+            }),
+          REPLY_AT,
+        ),
+      );
+    },
+    [activeId, finishIntro],
+  );
+
+  const swapSide = useCallback(
+    () => setSide((current) => (current === "end" ? "start" : "end")),
+    [],
+  );
 
   return {
     state,
@@ -252,14 +258,12 @@ export function useDemoChat(autoplay: boolean) {
     activeId,
     pane,
     query,
-    draft,
     side,
     setPane,
     setQuery,
-    setDraft,
     openChat,
     openSection,
     send,
-    swapSide: () => setSide((current) => (current === "end" ? "start" : "end")),
+    swapSide,
   };
 }

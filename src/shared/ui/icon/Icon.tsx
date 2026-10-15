@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { CSSProperties, ReactNode } from "react";
 
 interface IconDefinition {
@@ -8,7 +9,7 @@ interface IconDefinition {
   glyph: ReactNode;
 }
 
-/** Glyphs match frontend/src/shared/ui/icons/picturesSVG.tsx; the rest follow the same Feather-like style. */
+/** The messenger's glyphs; the rest follow the same Feather-like style. */
 const ICONS = {
   chat: {
     viewBox: "0 0 24 24",
@@ -217,15 +218,6 @@ const ICONS = {
       </>
     ),
   },
-  at: {
-    viewBox: "0 0 24 24",
-    glyph: (
-      <>
-        <circle cx="12" cy="12" r="4" />
-        <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94" />
-      </>
-    ),
-  },
 } satisfies Record<string, IconDefinition>;
 
 export type IconName = keyof typeof ICONS;
@@ -239,7 +231,7 @@ interface IconProps {
   style?: CSSProperties;
 }
 
-export function Icon({
+export const Icon = memo(function Icon({
   name,
   className,
   size = "1.25em",
@@ -265,4 +257,4 @@ export function Icon({
       {icon.glyph}
     </svg>
   );
-}
+});

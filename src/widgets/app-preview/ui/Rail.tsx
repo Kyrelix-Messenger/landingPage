@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useTranslation } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
 import { Icon, type IconName } from "@/shared/ui/icon/Icon";
@@ -14,7 +15,7 @@ interface RailProps {
 }
 
 /** The messenger's navigation rail. Its theme button is local to the window. */
-export function Rail({
+export const Rail = memo(function Rail({
   section,
   unreadGroups,
   onSection,
@@ -86,4 +87,4 @@ export function Rail({
       </div>
     </nav>
   );
-}
+});

@@ -1,5 +1,12 @@
-import { useEffect, useRef, type FormEvent, type ReactNode } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import {
+  memo,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
+import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { useFormatTime, useTranslation } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
 import { Avatar } from "@/shared/ui/avatar/Avatar";
@@ -33,7 +40,7 @@ interface SlotProps {
 function Slot({ own, fresh, hidden, children }: SlotProps) {
   const reduced = useReducedMotion();
   return (
-    <motion.div
+    <m.div
       className={cn(styles.slot, own && styles.slotOwn)}
       initial={fresh ? { height: reduced ? "auto" : 0, opacity: 0 } : false}
       animate={{ height: "auto", opacity: 1 }}
@@ -48,15 +55,15 @@ function Slot({ own, fresh, hidden, children }: SlotProps) {
       }}
       aria-hidden={hidden || undefined}
     >
-      <motion.div
+      <m.div
         className={styles.message}
         initial={fresh && !reduced ? { y: 20, scale: 0.9 } : false}
         animate={{ y: 0, scale: 1 }}
         transition={LAND}
       >
         {children}
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 }
 
@@ -64,19 +71,15 @@ interface ConversationProps {
   chat: ChatDefinition;
   messages: readonly ChatMessage[];
   typing: boolean;
-  draft: string;
-  onDraft: (value: string) => void;
-  onSend: () => void;
+  onSend: (text: string) => void;
   onBack: () => void;
 }
 
 /** Header, message history and composer of the open chat. */
-export function Conversation({
+export const Conversation = memo(function Conversation({
   chat,
   messages,
   typing,
-  draft,
-  onDraft,
   onSend,
   onBack,
 }: ConversationProps) {
@@ -85,6 +88,8 @@ export function Conversation({
   const scroller = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLDivElement>(null);
   const pinned = useRef(true);
+  // the draft is local: typing re-renders only this panel, not the whole window
+  const [draft, setDraft] = useState("");
 
   // Keep the newest message in view while rows grow: follow the list's height frame by frame
   // (a one-off smooth scroll would only reach the height the list had when it started).
@@ -127,7 +132,9 @@ export function Conversation({
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    onSend();
+    if (draft.trim() === "") return;
+    onSend(draft);
+    setDraft("");
   };
 
   return (
@@ -200,7 +207,7 @@ export function Conversation({
             autoComplete="off"
             placeholder={t("demo.input")}
             aria-label={t("demo.input")}
-            onChange={(event) => onDraft(event.target.value)}
+            onChange={(event) => setDraft(event.target.value)}
           />
           <button
             className={styles.send}
@@ -214,4 +221,4 @@ export function Conversation({
       )}
     </section>
   );
-}
+});

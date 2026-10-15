@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { CSSProperties } from "react";
 import { cn } from "@/shared/lib/cn";
 import styles from "./Avatar.module.css";
@@ -12,7 +13,12 @@ interface AvatarProps {
 }
 
 /** Letter avatar, derived from the name the way the messenger derives it. */
-export function Avatar({ name, size, tone = 0, className }: AvatarProps) {
+export const Avatar = memo(function Avatar({
+  name,
+  size,
+  tone = 0,
+  className,
+}: AvatarProps) {
   const letter = Array.from(name.trim())[0]?.toUpperCase() ?? "?";
   const style = size ? ({ "--avatar-size": size } as CSSProperties) : undefined;
   return (
@@ -28,4 +34,4 @@ export function Avatar({ name, size, tone = 0, className }: AvatarProps) {
       {letter}
     </span>
   );
-}
+});

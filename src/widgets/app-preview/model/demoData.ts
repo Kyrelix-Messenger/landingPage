@@ -1,12 +1,12 @@
 import type { TranslationKey } from "@/shared/i18n";
 
 export type ChatId = "mia" | "alex" | "team" | "news";
-export type ChatKind = "direct" | "group" | "channel";
+type ChatKind = "direct" | "group" | "channel";
 /** The messenger's rail sections; "calls" is a placeholder page there too. */
 export type Section = "chats" | "groups" | "calls";
 export type Person = "mia" | "alex";
 
-export interface SeedMessage {
+interface SeedMessage {
   id: string;
   from: "me" | "them";
   /** Shown above incoming messages in groups. */

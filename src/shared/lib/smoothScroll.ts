@@ -23,7 +23,7 @@ function prefersReducedMotion(): boolean {
  * "Reduced motion" shortens the glide and drops the acceleration instead of removing it, because
  * an instant jump is exactly the disorienting behaviour that setting is meant to avoid.
  */
-export function smoothScrollTo(top: number): Promise<void> {
+function smoothScrollTo(top: number): Promise<void> {
   stopCurrent?.();
   const from = window.scrollY;
   const distance = top - from;

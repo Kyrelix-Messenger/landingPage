@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { LOCALES } from "@/shared/boot/boot";
 import { APP_HOST, APP_URL } from "@/shared/config/links";
 import {
@@ -21,7 +22,7 @@ const SECTIONS: ReadonlyArray<{ href: string; label: TranslationKey }> = [
  * Small on purpose, and not a copy of the header: who we are, where things are, where the app is,
  * every language as a plain text link.
  */
-export function SiteFooter() {
+export const SiteFooter = memo(function SiteFooter() {
   const { t, locale } = useTranslation();
   const setLocale = useLocaleStore((state) => state.setLocale);
 
@@ -89,4 +90,4 @@ export function SiteFooter() {
       </p>
     </footer>
   );
-}
+});

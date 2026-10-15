@@ -1,6 +1,6 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
-  motion,
+  m,
   useMotionTemplate,
   useReducedMotion,
   useTransform,
@@ -44,7 +44,7 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
   } | null>(null);
   const theme = override?.site === siteTheme ? override.theme : siteTheme;
   const stageRef = useRef<HTMLDivElement>(null);
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     const stage = stageRef.current;
     stage?.setAttribute("data-theming", "");
     window.setTimeout(() => stage?.removeAttribute("data-theming"), 500);
@@ -52,7 +52,7 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
       theme: theme === "dark" ? "light" : "dark",
       site: siteTheme,
     });
-  };
+  }, [theme, siteTheme]);
   const demo = useDemoChat(interactive);
   const { x, y } = usePointerSpring();
 
@@ -81,15 +81,17 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
   const railRef = useRef<HTMLDivElement>(null);
   const flipFrom = useRef<{ content: number; rail: number } | null>(null);
 
-  const swapSide = () => {
+  const { swapSide: swapDemoSide, setPane } = demo;
+  const swapSide = useCallback(() => {
     if (contentRef.current && railRef.current) {
       flipFrom.current = {
         content: contentRef.current.offsetLeft,
         rail: railRef.current.offsetLeft,
       };
     }
-    demo.swapSide();
-  };
+    swapDemoSide();
+  }, [swapDemoSide]);
+  const showList = useCallback(() => setPane("list"), [setPane]);
 
   useLayoutEffect(() => {
     const from = flipFrom.current;
@@ -113,8 +115,12 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
 
   const { state, section, activeId, pane } = demo;
   const chat = chatById(activeId);
-  const list = CHATS.filter(
-    (item) => item.section === (section === "calls" ? "chats" : section),
+  const list = useMemo(
+    () =>
+      CHATS.filter(
+        (item) => item.section === (section === "calls" ? "chats" : section),
+      ),
+    [section],
   );
   const unreadGroups = CHATS.filter((item) => item.section === "groups").reduce(
     (sum, item) => sum + state.unread[item.id],
@@ -150,10 +156,8 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
           chat={chat}
           messages={state.messages[activeId]}
           typing={state.typing === activeId}
-          draft={demo.draft}
-          onDraft={demo.setDraft}
           onSend={demo.send}
-          onBack={() => demo.setPane("list")}
+          onBack={showList}
         />
       </>
     );
@@ -166,12 +170,12 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
     >
       {interactive && (
         <>
-          <motion.div
+          <m.div
             className={cn(styles.glow, styles.glowA)}
             style={{ x: outerAx, y: outerAy }}
             aria-hidden="true"
           />
-          <motion.div
+          <m.div
             className={cn(styles.glow, styles.glowB)}
             style={{ x: outerBx, y: outerBy }}
             aria-hidden="true"
@@ -179,7 +183,7 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
         </>
       )}
 
-      <motion.div
+      <m.div
         className={styles.tilt}
         style={
           interactive
@@ -190,7 +194,7 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
       >
-        <motion.div
+        <m.div
           className={styles.window}
           role="group"
           aria-label={t("a11y.demo")}
@@ -199,18 +203,18 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
           data-side={demo.side}
           style={interactive ? { boxShadow } : undefined}
         >
-          <motion.div
+          <m.div
             className={cn(styles.sphere, styles.sphereA)}
             style={interactive ? { x: innerAx, y: innerAy } : undefined}
             aria-hidden="true"
           />
-          <motion.div
+          <m.div
             className={cn(styles.sphere, styles.sphereB)}
             style={interactive ? { x: innerBx, y: innerBy } : undefined}
             aria-hidden="true"
           />
           {interactive && (
-            <motion.div
+            <m.div
               className={styles.glare}
               style={{ background: glare }}
               aria-hidden="true"
@@ -231,8 +235,8 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
               />
             </div>
           </div>
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
     </div>
   );
 }

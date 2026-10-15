@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type MouseEvent } from "react";
+import { useEffect, useId, useState, type MouseEvent, memo } from "react";
 import { useTranslation, type TranslationKey } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
 import { Brand } from "@/shared/ui/brand/Brand";
@@ -15,7 +15,7 @@ const LINKS: ReadonlyArray<{ href: string; label: TranslationKey }> = [
 ];
 
 /** A flat bar across the whole viewport: brand, sections, language and theme. No call to action. */
-export function SiteHeader() {
+export const SiteHeader = memo(function SiteHeader() {
   const { t } = useTranslation();
   const navId = useId();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -92,4 +92,4 @@ export function SiteHeader() {
       </div>
     </header>
   );
-}
+});

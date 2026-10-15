@@ -5,6 +5,7 @@ import {
   useEffect,
   useState,
   type ReactNode,
+  memo,
 } from "react";
 import { useReducedMotion } from "framer-motion";
 
@@ -50,7 +51,7 @@ function isConstrained(): boolean {
  * and press effects on top. Skipped for "reduced motion" (it is all movement), without WebGL and on
  * constrained devices. It loads during idle time, never blocking the first paint.
  */
-export function Scene3D() {
+export const Scene3D = memo(function Scene3D() {
   const reducedMotion = useReducedMotion();
   const [ready, setReady] = useState(false);
 
@@ -73,4 +74,4 @@ export function Scene3D() {
       </Suspense>
     </Fallback>
   );
-}
+});

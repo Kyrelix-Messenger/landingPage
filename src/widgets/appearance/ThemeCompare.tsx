@@ -6,7 +6,7 @@ import { cn } from "@/shared/lib/cn";
 import { useThemeStore } from "@/shared/theme";
 import { Icon } from "@/shared/ui/icon/Icon";
 import { AppPreview } from "@/widgets/app-preview/AppPreview";
-import { restingAnchor, restingPosition, snap } from "./compareMath";
+import { restingAnchor, restingPosition } from "./compareMath";
 import styles from "./Appearance.module.css";
 
 /** The finished conversation, frozen: no focus, no clicks, hidden from assistive technology. */
@@ -27,7 +27,7 @@ const themeLabel = (theme: Theme) =>
  * from the keyboard). The page's own theme fills most of the frame and the other theme sits on the
  * chat-list side, about a third, so the lighter theme never floods the dark page; when the theme of
  * the page changes, the two swap roles. The divider rests just in front of the message column and
- * is magnetic around that place.
+ * stays exactly where the visitor moves it.
  */
 export function ThemeCompare() {
   const { t, locale } = useTranslation();
@@ -40,7 +40,6 @@ export function ThemeCompare() {
   const [anchor, setAnchor] = useState<number | null>(null);
   /** Null while the divider rests at its anchor; a number once it has been moved. */
   const [moved, setMoved] = useState<number | null>(null);
-  const dragging = useRef(false);
   const inView = useInView(root, { once: true, amount: 0.6 });
   const reducedMotion = useReducedMotion();
 
@@ -112,11 +111,9 @@ export function ThemeCompare() {
     };
   }, [inView, reducedMotion]);
 
-  const onChange = (raw: number) => {
-    // the magnet works for the pointer only: with the keyboard it would trap the divider
-    const next = dragging.current ? snap(raw, anchor) : raw;
-    setMoved(next === anchor ? null : next);
-  };
+  // once the visitor moves the divider it stays exactly where they put it (no magnet); a reload
+  // starts from the resting place again
+  const onChange = (raw: number) => setMoved(raw);
 
   const leftTheme = rtl ? siteTheme : other;
   const rightTheme = rtl ? other : siteTheme;
@@ -148,15 +145,6 @@ export function ThemeCompare() {
             step={0.5}
             value={position}
             aria-label={t("appearance.compare")}
-            onPointerDown={() => {
-              dragging.current = true;
-            }}
-            onPointerUp={() => {
-              dragging.current = false;
-            }}
-            onPointerCancel={() => {
-              dragging.current = false;
-            }}
             onChange={(event) => onChange(Number(event.target.value))}
           />
           <div className={styles.handle} aria-hidden="true">

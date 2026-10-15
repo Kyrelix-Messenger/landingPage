@@ -41,7 +41,7 @@
 .nav {
   display: flex;
   gap: 0.25rem;
-  margin-inline: auto;
+  margin-inline-start: auto;
 }
 
 /* No pills, no glow: a link only changes its colour while it is hovered or pressed. */
@@ -66,6 +66,15 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/* a thin divider between the sections and the controls */
+.actions::before {
+  content: "";
+  width: 1px;
+  height: 1.5rem;
+  margin-inline-end: 0.5rem;
+  background: var(--divider);
 }
 
 .menuButton {
@@ -141,6 +150,10 @@
 
   .actions {
     margin-inline-start: auto;
+  }
+
+  .actions::before {
+    display: none;
   }
 }
 

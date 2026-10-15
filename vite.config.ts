@@ -32,13 +32,34 @@ function inlineBoot(): Plugin {
   };
 }
 
+const SLIM_THREE = fileURLToPath(
+  new URL("./src/widgets/scene3d/three-slim.ts", import.meta.url),
+);
+
+/**
+ * react-three-fiber registers the whole of three.js (`extend(THREE)`), which defeats tree shaking.
+ * In production builds every import of "three" except the one inside three-slim.ts itself is
+ * redirected to that file, which re-exports only the classes the site uses.
+ */
+function slimThree(): Plugin {
+  return {
+    name: "kyrelix:slim-three",
+    apply: "build",
+    enforce: "pre",
+    resolveId(source, importer) {
+      if (source !== "three" || importer === SLIM_THREE) return null;
+      return SLIM_THREE;
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   base: "./",
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
-  plugins: [react(), inlineBoot()],
+  plugins: [react(), inlineBoot(), slimThree()],
   server: { port: 5180 },
   preview: { port: 5181 },
   build: {

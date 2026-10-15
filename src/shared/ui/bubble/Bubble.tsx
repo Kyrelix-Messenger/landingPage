@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { ReactNode } from "react";
 import { cn } from "@/shared/lib/cn";
 import styles from "./Bubble.module.css";
@@ -12,7 +13,7 @@ interface BubbleProps {
 }
 
 /** A message bubble with the messenger's shape: 20 px radius and a 6 px "tail" corner. */
-export function Bubble({
+export const Bubble = memo(function Bubble({
   children,
   own,
   sender,
@@ -28,4 +29,4 @@ export function Bubble({
       {time && <time className={styles.time}>{time}</time>}
     </div>
   );
-}
+});

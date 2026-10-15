@@ -1,4 +1,4 @@
-import { motion, type Variants } from "framer-motion";
+import { m, type Variants } from "framer-motion";
 import { APP_URL } from "@/shared/config/links";
 import { useTranslation } from "@/shared/i18n";
 import { Button } from "@/shared/ui/button/Button";
@@ -23,22 +23,22 @@ export function Hero() {
 
   return (
     <section className={styles.hero} aria-labelledby="hero-title">
-      <motion.div
+      <m.div
         className={styles.copy}
         variants={container}
         initial="hidden"
         animate="show"
       >
-        <motion.h1 id="hero-title" className={styles.title} variants={item}>
+        <m.h1 id="hero-title" className={styles.title} variants={item}>
           <span>{t("hero.title1")}</span>{" "}
           <span className={styles.accent}>{t("hero.title2")}</span>
-        </motion.h1>
+        </m.h1>
 
-        <motion.p className={styles.lead} variants={item}>
+        <m.p className={styles.lead} variants={item}>
           {t("hero.lead")}
-        </motion.p>
+        </m.p>
 
-        <motion.div className={styles.actions} variants={item}>
+        <m.div className={styles.actions} variants={item}>
           <Button size="lg" href={APP_URL} external>
             {t("hero.cta")}
             <Icon name="arrowRight" className={styles.arrow} />
@@ -46,9 +46,9 @@ export function Hero() {
           <Button size="lg" variant="glass" href="#features">
             {t("hero.more")}
           </Button>
-        </motion.div>
+        </m.div>
 
-        <motion.ul className={styles.platforms} variants={item}>
+        <m.ul className={styles.platforms} variants={item}>
           <li className={styles.platform}>
             <Icon name="globe" size="1.5rem" strokeWidth={1.5} />
             <span className={styles.platformText}>
@@ -67,8 +67,8 @@ export function Hero() {
               <span className={styles.planned}>{t("hero.mobileStatus")}</span>
             </span>
           </li>
-        </motion.ul>
-      </motion.div>
+        </m.ul>
+      </m.div>
 
       <div className={styles.visual}>
         <AppPreview />

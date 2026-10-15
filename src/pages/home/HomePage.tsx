@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Appearance } from "@/widgets/appearance/Appearance";
 import { Cta } from "@/widgets/cta/Cta";
 import { Faq } from "@/widgets/faq/Faq";
@@ -6,7 +7,7 @@ import { Hero } from "@/widgets/hero/Hero";
 import { Languages } from "@/widgets/languages/Languages";
 import { Roadmap } from "@/widgets/roadmap/Roadmap";
 
-export function HomePage() {
+export const HomePage = memo(function HomePage() {
   return (
     <>
       <Hero />
@@ -18,4 +19,4 @@ export function HomePage() {
       <Cta />
     </>
   );
-}
+});

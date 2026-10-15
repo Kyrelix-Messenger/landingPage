@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { MotionConfig } from "framer-motion";
+import { LazyMotion, MotionConfig, domAnimation } from "framer-motion";
 import { HomePage } from "@/pages/home/HomePage";
 import { useLocaleStore, useTranslation } from "@/shared/i18n";
 import { bindPointer } from "@/shared/lib/pointer";
@@ -36,18 +36,22 @@ export function App() {
 
   return (
     // transforms are skipped for people who asked for less motion; fades and colour changes stay
-    <MotionConfig reducedMotion="user">
-      <SiteBackground />
-      <Scene3D />
-      <a className={styles.skip} href="#main">
-        {t("a11y.skip")}
-      </a>
-      <div id="top" />
-      <SiteHeader />
-      <main id="main" className={styles.main}>
-        <HomePage />
-      </main>
-      <SiteFooter />
-    </MotionConfig>
+    // `m` components plus the small domAnimation feature set instead of the full `motion` bundle;
+    // `strict` makes any stray `motion.*` import fail loudly instead of quietly growing the bundle
+    <LazyMotion features={domAnimation} strict>
+      <MotionConfig reducedMotion="user">
+        <SiteBackground />
+        <Scene3D />
+        <a className={styles.skip} href="#main">
+          {t("a11y.skip")}
+        </a>
+        <div id="top" />
+        <SiteHeader />
+        <main id="main" className={styles.main}>
+          <HomePage />
+        </main>
+        <SiteFooter />
+      </MotionConfig>
+    </LazyMotion>
   );
 }

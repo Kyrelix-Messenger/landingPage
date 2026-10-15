@@ -11,8 +11,8 @@
  * Language: ?lang=xx  →  the language chosen on the site (localStorage)  →  the first supported
  * entry of navigator.languages  →  English.
  *
- * Translation hints: when the site is shown in a language it supports natively — or the
- * visitor's own language is supported — machine translation is switched off
+ * Translation hints: when the site is shown in a language it supports natively (or the
+ * visitor's own language is supported), machine translation is switched off
  * (<meta name="google" content="notranslate">, translate="no", class="notranslate"), so
  * Chrome/Edge/Google Translate do not show their bar. Only when none of the visitor's
  * languages is supported does the site fall back to English and keep translation available
@@ -34,7 +34,7 @@ export interface LocaleInfo {
   readonly dir: "ltr" | "rtl";
 }
 
-/** Same languages, names and order as frontend/src/shared/i18n/model/localeStore.ts (tests/locales.test.ts checks). */
+/** The messenger's languages, with their names and order. Every one needs a dictionary (tests/locales.test.ts checks). */
 export const LOCALES: readonly LocaleInfo[] = [
   { code: "ru", name: "Русский", html: "ru", dir: "ltr" },
   { code: "en", name: "English", html: "en", dir: "ltr" },

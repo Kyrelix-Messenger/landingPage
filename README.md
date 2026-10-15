@@ -1,73 +1,111 @@
-# Kyrelix: лендинг
+# Kyrelix landing page
 
-Одностраничный сайт о мессенджере. React 19 + TypeScript + Vite 7 + framer-motion + react-three-fiber, дизайн взят из клиента (`frontend/`): стекло, градиент, сферы, тёмная и светлая темы, те же 10 языков. Живое превью чата в hero работает на тех же токенах, что и сам мессенджер, а 3D-слой на WebGL откликается на то, чем вы пользуетесь.
+A single-page site for the Kyrelix messenger. React 19, TypeScript, Vite 7, framer-motion, react-three-fiber. The design follows the messenger client: glass, gradient, spheres, light and dark themes, the same 10 languages. The hero has a live window of the messenger, and behind the page there is a WebGL layer that reacts to the cursor and to presses.
 
-Папка самостоятельная: свой `package.json`, свой lock-файл, ничего из `frontend/`, `backend/` и `ops/` не импортируется и не меняется.
-
-## Запуск
+## Getting started
 
 ```bash
-npm --prefix site install
-npm --prefix site run dev        # http://localhost:5180
-npm --prefix site run build      # tsc -b && vite build, результат в site/dist
-npm --prefix site run preview    # http://localhost:5181, проверка сборки
-npm --prefix site run lint
-npm --prefix site run check:types
-npm --prefix site test           # 139 тестов: словари, определение языка, ссылки, темп чата, сравнение тем, 3D-логика
+npm install
+npm run dev            # http://localhost:5180
+npm run build          # tsc -b && vite build, output in dist/
+npm run preview        # http://localhost:5181, check the build
+npm run lint
+npm run format         # prettier
+npm run check:types    # types, tests included
+npm test               # node:test, 135 tests
 ```
 
-Нужен Node 20.19+ (Vite 7). После обновления зависимостей (добавились `three` и `@react-three/fiber`) запустите `npm --prefix site install` и перезапустите dev-сервер.
+Node 20.19 or newer is required (Vite 7). `dist/` is plain static output, so any host works and no `try_files` is needed (there are no routes, only anchors).
 
-## Где что менять
+## Deployment
 
-| Что                    | Где                                                                                                                                       |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Адрес веб-версии       | `src/shared/config/links.ts` (`web.kyrelix.org`), больше нигде не пишется                                                                 |
-| Тексты                 | `src/shared/i18n/dictionaries/*.ts`. Источник `en.ts`, остальные типизированы под него: пропущенный или лишний ключ это ошибка компиляции |
-| Список языков          | `LOCALES` в `src/shared/boot/boot.ts`. Тест сверяет его с `frontend/src/shared/i18n/model/localeStore.ts` (коды, названия, порядок)       |
-| Цвета, радиусы, стекло | `src/app/styles/tokens.css`                                                                                                               |
-| Масштаб                | `src/app/styles/base.css` (формула `font-size` корня)                                                                                     |
+`.github/workflows/deploy.yml` runs on every push and pull request (lint, types, tests, build) and publishes `dist/` to GitHub Pages on a push to `main`. It can also be started by hand from the Actions tab.
 
-Структура: `app` (каркас, стили), `pages/home`, `widgets/*` (секции, шапка, подвал, `app-preview` с демо-чатом, `scene3d` с WebGL-слоем), `shared/*` (ui, i18n, тема, boot, утилиты, `lib/fx.ts` шина между страницей и 3D).
+One-time setup: **Settings, Pages, Source: GitHub Actions**. The site uses relative asset paths (`base: "./"`), so it works both at `https://<org>.github.io/landingPage/` and at the root of a custom domain. To use a domain such as `kyrelix.org`, set it in Settings, Pages (and point DNS at GitHub); no `CNAME` file is needed with Actions deployments.
 
-## Язык и подсказка переводчика
+## Structure
 
-Порядок выбора: `?lang=xx`, затем язык, выбранный на сайте (localStorage `kyrelix-site-locale`), затем первый поддерживаемый из `navigator.languages`, иначе английский.
+```
+src/
+  app/            shell, global styles (tokens.css, base.css)
+  pages/home/     the page, made of sections
+  widgets/        sections and larger blocks
+    app-preview/  the live messenger window and the demo chat (pacing in model/pacing.ts)
+    appearance/   the theme comparison
+    scene3d/      the WebGL layer (react-three-fiber)
+    ...           hero, features, languages, roadmap, faq, cta, header, footer
+  shared/
+    boot/         language and theme kernel: inlined into <head>, runs before the first paint
+    i18n/         dictionaries (en.ts is the source), language store
+    theme/        theme store
+    lib/          fx.ts (bus between the page and the 3D layer), pointer.ts, smoothScroll.ts
+    ui/           button, icons, avatar, bubble, GlowSurface, Reveal, Section
+tests/            dictionaries, language detection, links, chat pacing, theme comparison, 3D logic
+```
 
-Подсказку «Перевести страницу» браузера отменяет только то, что мы показываем язык, который умеем сами. Это делает маленькое ядро `boot.ts`: оно встроено в `<head>` и выполняется до первой отрисовки, поэтому браузер сразу видит итоговые `lang`, `dir` и `translate`.
+## Where to change things
 
-| Ситуация                                                | Что видит браузер                                                                                           |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Язык пользователя поддерживается, сайт на нём           | `<meta name="google" content="notranslate">`, `translate="no"`, `class="notranslate"`: плашка не появляется |
-| Язык пользователя не поддерживается, сайт на английском | ничего не блокируется, плашка и расширения-переводчики работают; на странице есть подсказка об этом         |
-| Пользователь сам выбрал язык на сайте                   | как в первой строке; выбор английского при неподдерживаемом языке браузера снова открывает перевод          |
+| What                  | Where                                                                                                                                  |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Web version address   | `src/shared/config/links.ts` (`web.kyrelix.org`), written nowhere else                                                                 |
+| Texts                 | `src/shared/i18n/dictionaries/*.ts`. `en.ts` is the source and the others are typed against it: a missing or extra key is a type error |
+| Language list         | `LOCALES` in `src/shared/boot/boot.ts`; every language needs a dictionary (a test checks this)                                         |
+| Colours, radii, glass | `src/app/styles/tokens.css`                                                                                                            |
+| Scale                 | `src/app/styles/base.css` (the root `font-size` formula)                                                                               |
+| Demo chat pacing      | `src/widgets/app-preview/model/pacing.ts`                                                                                              |
 
-Проверено 16 сценариями (поддерживаемый язык, региональные теги `pt-BR` и `zh-TW`, список из нескольких языков, пустой список, `?lang=`, сохранённый выбор, мусор в localStorage, заблокированный localStorage, переключение туда и обратно). Таблицы решений лежат в `tests/detection.test.ts`.
+Copy style: short plain sentences, no long dashes, no hype, no promises the app does not keep. For every language `tests/locales.test.ts` checks the same keys as English, no empty strings, no dashes or spaced hyphens, no HTML or Markdown, no copies of the English text, the right script for ru, zh, ja and ar, and a non-breaking space before `: ; ? !` in French.
 
-Арабский: `dir="rtl"` у всего документа, разметка зеркалится логическими свойствами. В переключателе языков названия остаются в направлении страницы, а само слово стоит в элементе с собственным `lang`.
+## Language and the translate prompt
 
-## Тема
+Selection order: `?lang=xx`, then the language chosen on the site (localStorage `kyrelix-site-locale`), then the first supported entry of `navigator.languages`, otherwise English.
 
-Следует за `prefers-color-scheme` вживую. Кнопка переключает вручную и запоминает выбор (`kyrelix-site-theme`); возврат к системной теме снимает ручной выбор.
+The browser's "Translate this page" prompt is suppressed only when we show a language we support ourselves. The `boot.ts` kernel does this: it is inlined into `<head>` (a plugin in `vite.config.ts`) and runs before the first paint, so the browser sees the final `lang`, `dir` and `translate` right away. It must not import anything.
 
-## 3D-слой
+| Situation                                                | What the browser sees                                                                             |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| The visitor's language is supported, the site uses it    | `<meta name="google" content="notranslate">`, `translate="no"`, `class="notranslate"`: no prompt  |
+| The visitor's language is not supported, site in English | nothing is blocked, the prompt and translator extensions work; the page shows a note about it     |
+| The visitor picked a language on the site                | as in the first row; picking English with an unsupported browser language opens translation again |
 
-Два прозрачных холста на react-three-fiber: стеклянные фигуры под страницей и эффекты нажатия над ней. Фигуры плывут и отклоняются от курсора, а при наведении на кнопку, ссылку или плитку две ближайшие подплывают и загораются; нажатие даёт вспышку и разлетающиеся грани. Подробности и цена в [DESIGN.md](DESIGN.md).
+The decision tables are in `tests/detection.test.ts`. Arabic: `dir="rtl"` on the whole document, and the layout mirrors through logical properties.
 
-- Грузится лениво, после готовности страницы (отдельные чанки, основной бандл не вырос). Не включается при `prefers-reduced-motion`, без WebGL, при экономии трафика и на слабых устройствах; любая ошибка WebGL оставляет обычный CSS-фон.
-- Чтобы элемент считался «главным» или «поверхностью» для сцены, задайте ему `data-fx="primary"` или `data-fx="surface"`. Все `a[href]`, `button`, `summary` и `[role="button"]` реагируют сами.
-- Версия `three` закреплена на `^0.182`: с 0.183 библиотека R3F вызывает устаревший `THREE.Clock` и пишет предупреждение в консоль.
+## Theme
 
-## Движение и прозрачность
+Follows `prefers-color-scheme` live. The header button switches it by hand and remembers the choice (`kyrelix-site-theme`); going back to the system theme clears the override. The theme button inside the messenger window changes the theme of the window only; if the page theme changes afterwards, the window follows the page again.
 
-- `prefers-reduced-motion`: остаются короткие смены цвета и прозрачности, отключаются зацикленные анимации, параллакс, наклон окна, перемещения и весь 3D-слой. Плавный скролл к якорям укорачивается, но не пропадает.
-- `prefers-reduced-transparency`: стекло становится плотнее, но остаётся стеклом, а 3D-фигуры за ним гаснут вдвое. На Windows это значение включено, если выключены «Эффекты прозрачности», поэтому в браузере с такой настройкой всё выглядит чуть плотнее.
-- Касания не двигают наклон окна, только мышь и перо.
+## 3D layer
 
-## Что нужно знать перед публикацией
+Two transparent canvases: glass shapes under the page and press effects over it. The shapes drift and lean away from the cursor, the two nearest ones swim up and light up when you hover a button, a link or a tile, and a press produces a flash and flying shards.
 
-- В `ops/nginx/kyrelix.org.conf` сейчас только `kyrelix.org` с самим мессенджером (`/opt/schat/frontend-dist`). Конфиг для лендинга и для `web.kyrelix.org` нужно добавить отдельно: `site/dist` это обычная статика, `try_files` не нужен.
-- В дорожной карте есть «Kyrelix для бизнеса». В клиенте от этого есть только ключи перевода без экранов. Если такого продукта не будет, удалите запись в `src/widgets/roadmap/Roadmap.tsx` и ключи `roadmap.business.*` во всех словарях.
-- Строка «Android и iOS: в планах» основана на словах заказчика. Звонки на сайте помечены «в разработке», потому что в клиенте звонки пока заглушка.
-- Про шифрование сказано только то, что соединение защищено TLS, а сквозного шифрования ещё нет (`docs/omemo-next.md`).
-- Не сделано: `og:image`, `canonical`, `sitemap.xml`, отдельные статические страницы по языкам.
+- The page tells the scene what is happening through `src/shared/lib/fx.ts` (plain module state, no React). Every `a[href]`, `button`, `summary` and `[role="button"]` reacts on its own; `data-fx="primary"` or `data-fx="surface"` sets the kind explicitly.
+- The logic is separate from three.js and covered by tests: `orbField.ts`, `effectsSim.ts`, `math3d.ts`.
+- It loads lazily once the page is ready. It does not start with `prefers-reduced-motion`, without WebGL, on data saver, or on devices with two cores or fewer. Any WebGL error leaves the plain CSS background. With `prefers-reduced-transparency` the shapes fade to half.
+- Size: react-three-fiber pulls in the whole of three (`extend(THREE)`), so production builds redirect imports of `three` to `src/widgets/scene3d/three-slim.ts` (the `slimThree` plugin in `vite.config.ts`), which lists only what is needed. The three chunk went from 719 KB (187 KB gzip) to 499 KB (127 KB). **If you add a new scene element** (for example `<boxGeometry>`), add its class to `three-slim.ts`, otherwise production fails with `Invalid constructor`; check it with `npm run build && npm run preview`.
+- `three` is pinned to `^0.182`: from 0.183 R3F calls the deprecated `THREE.Clock` and prints a console warning.
+
+## Motion and transparency
+
+- `prefers-reduced-motion`: short colour and opacity changes stay; looping animations, parallax, the window tilt, movement and the whole 3D layer are turned off. Smooth scrolling to anchors is shortened, not removed.
+- `prefers-reduced-transparency`: the glass gets denser but stays glass. On Windows this is on when "Transparency effects" is off.
+- `framer-motion` is used through `LazyMotion` and `m.*` components (`strict` stops a full `motion` import from sneaking back in).
+
+## Contrast
+
+The client does not meet WCAG AA for small text on glass; the site does: secondary text is darker in the light theme and lighter in the dark one, highlighted rows (`--row-lit-bg`) are lit less, and the header is denser than ordinary glass (`--header-bg`). The check was done on a screenshot with transparent text: the background colour under every text node against the text colour, threshold 4.5 (3 for large text). Scroll step 380 px, both themes, widths 1440 and 390, with and without `prefers-reduced-transparency`, with the 3D layer on: 0 violations. Repeat it after changing colours or the background.
+
+## Technical decisions that are easy to break
+
+- `overflow: clip`, not `hidden`, in the preview window: `hidden` makes a scroll container, and focus or `scrollIntoView` can shift the contents.
+- Swapping the window panels is computed by hand (FLIP through `offsetLeft` and the Web Animations API), and chat rows grow by animating their height: framer-motion's `layout` breaks inside a tilted 3D parent.
+- The cursor glow is an element moved with `transform` (`GlowSurface`), not a CSS variable: a registered `@property` with `inherits: false` never reaches pseudo-elements, and with `inherits: true` every mouse move restyles the whole subtree.
+- `Reveal` only lifts a block and never changes its opacity: an element with `opacity < 1` becomes a backdrop root, so the glass inside cannot see the page while the animation runs (the blocks used to be grey and then turn blue).
+- The header's glass sits on `::before`: a nested `backdrop-filter` cannot see the page.
+- The three.js camera is changed inside `useFrame` (`PixelCamera`), not in an effect: the React compiler rules forbid mutating a value returned from a hook.
+
+## Before publishing
+
+- The roadmap has "Kyrelix for Business". In the client it exists only as translation keys, with no screens. If there will be no such product, delete the entry in `src/widgets/roadmap/Roadmap.tsx` and the `roadmap.business.*` keys in every dictionary.
+- The "Android and iOS: planned" line is based on the customer's word. Calls are marked "in development" because calls in the client are still a placeholder.
+- About encryption the site only says the connection is protected by TLS and that end-to-end encryption is not available yet. Do not call it E2EE until the client has it.
+- Not done: `og:image`, `canonical`, `sitemap.xml`, separate static pages per language.

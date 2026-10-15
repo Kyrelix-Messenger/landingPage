@@ -2,29 +2,10 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   SINGLE_PANE_REST,
-  SNAP_RANGE,
   clamp,
   restingAnchor,
   restingPosition,
-  snap,
 } from "../src/widgets/appearance/compareMath.ts";
-
-describe("snap (the magnet)", () => {
-  it("takes a position near the anchor onto it", () => {
-    assert.equal(snap(36, 35.5), 35.5);
-    assert.equal(snap(35.5 + SNAP_RANGE, 35.5), 35.5);
-    assert.equal(snap(35.5 - SNAP_RANGE, 35.5), 35.5);
-  });
-
-  it("leaves everything else alone", () => {
-    assert.equal(snap(35.5 + SNAP_RANGE + 0.1, 35.5), 35.5 + SNAP_RANGE + 0.1);
-    assert.equal(snap(80, 35.5), 80);
-  });
-
-  it("does nothing without an anchor (one-pane window)", () => {
-    assert.equal(snap(50.4, null), 50.4);
-  });
-});
 
 describe("clamp", () => {
   it("keeps a value inside the range", () => {

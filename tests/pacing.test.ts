@@ -4,7 +4,6 @@ import {
   INTRO,
   READ_DELAY,
   REPLY_AT,
-  REPLY_TYPING_AT,
   typingDuration,
 } from "../src/widgets/app-preview/model/pacing.ts";
 
@@ -22,9 +21,8 @@ describe("typing duration", () => {
 
 describe("auto-reply", () => {
   it("is read first, then typed: nothing arrives within a second or two", () => {
-    assert.equal(REPLY_TYPING_AT, READ_DELAY);
-    assert.ok(REPLY_TYPING_AT >= 1000);
-    assert.ok(REPLY_AT - REPLY_TYPING_AT >= 1600);
+    assert.ok(READ_DELAY >= 1000);
+    assert.ok(REPLY_AT - READ_DELAY >= 1600);
   });
 });
 

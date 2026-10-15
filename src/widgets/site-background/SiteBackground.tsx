@@ -1,4 +1,5 @@
-import { motion, useTransform } from "framer-motion";
+import { memo } from "react";
+import { m, useTransform } from "framer-motion";
 import { usePointerSpring } from "@/shared/lib/pointer";
 import styles from "./SiteBackground.module.css";
 
@@ -7,7 +8,7 @@ import styles from "./SiteBackground.module.css";
  * (cross-faded on theme change). The spheres drift against the cursor, so the page and the
  * preview in the hero react to the same mouse.
  */
-export function SiteBackground() {
+export const SiteBackground = memo(function SiteBackground() {
   const { x, y } = usePointerSpring();
   const farX = useTransform(x, (v) => v * -90);
   const farY = useTransform(y, (v) => v * -70);
@@ -24,20 +25,20 @@ export function SiteBackground() {
           }
           data-theme={theme}
         >
-          <motion.div
+          <m.div
             className={`${styles.mover} ${styles.topRight}`}
             style={{ x: farX, y: farY }}
           >
             <div className={`${styles.sphere} ${styles.sphereA}`} />
-          </motion.div>
-          <motion.div
+          </m.div>
+          <m.div
             className={`${styles.mover} ${styles.bottomLeft}`}
             style={{ x: nearX, y: nearY }}
           >
             <div className={`${styles.sphere} ${styles.sphereB}`} />
-          </motion.div>
+          </m.div>
         </div>
       ))}
     </div>
   );
-}
+});

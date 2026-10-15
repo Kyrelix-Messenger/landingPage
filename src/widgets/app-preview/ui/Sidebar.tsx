@@ -1,3 +1,4 @@
+import { memo } from "react";
 import {
   useFormatTime,
   useTranslation,
@@ -28,7 +29,7 @@ interface SidebarProps {
 }
 
 /** The chat list panel: title, search and the rows. */
-export function Sidebar({
+export const Sidebar = memo(function Sidebar({
   title,
   chats,
   activeId,
@@ -141,4 +142,4 @@ export function Sidebar({
       )}
     </section>
   );
-}
+});
