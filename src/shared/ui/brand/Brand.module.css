@@ -8,18 +8,18 @@
   font-weight: 700;
   letter-spacing: -0.02em;
   text-decoration: none;
+  transition: color var(--t-fast) ease;
+}
+
+.brand:hover {
+  color: var(--rail-hover-color);
 }
 
 .mark {
-  display: grid;
-  place-items: center;
-  width: 2.375rem;
-  height: 2.375rem;
-  border: 1px solid var(--avatar-border);
-  border-radius: 0.75rem;
-  background: var(--avatar-grad);
-  box-shadow: var(--avatar-shadow);
-  color: #fff;
+  display: block;
+  flex: none;
+  width: auto;
+  height: 2.125rem;
 }
 
 .name {

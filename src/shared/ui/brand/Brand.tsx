@@ -1,13 +1,18 @@
-import { Icon } from "@/shared/ui/icon/Icon";
+import { LOGO_PATH, LOGO_VIEWBOX } from "./logoPath";
 import styles from "./Brand.module.css";
 
-/** Logo: the messenger's chat-bubble glyph on its avatar gradient, plus the wordmark. */
+/** The Kyrelix mark (drawn in the text colour, so it follows the theme) and the wordmark. */
 export function Brand({ href = "#top" }: { href?: string }) {
   return (
     <a className={styles.brand} href={href} aria-label="Kyrelix">
-      <span className={styles.mark} aria-hidden="true">
-        <Icon name="chat" size="1.25rem" strokeWidth={2} />
-      </span>
+      <svg
+        className={styles.mark}
+        viewBox={LOGO_VIEWBOX}
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d={LOGO_PATH} fill="currentColor" />
+      </svg>
       <span className={styles.name} translate="no">
         Kyrelix
       </span>
