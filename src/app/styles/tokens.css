@@ -1,0 +1,301 @@
+/* ==========================================================================
+   Design tokens, ported from the messenger client:
+     frontend/src/app/styles/index.css                 radii, glass, text, rings
+     frontend/src/app/layouts/main/Layout.module.css   page gradient, blurred spheres, rail
+     frontend/src/pages/chat/ui/ChatPage.module.css    bubbles, inputs, send button
+     frontend/src/pages/auth/ui/AuthPage.module.css    card, submit, theme/lang buttons
+   Values that miss WCAG AA for body text in the client are darkened and marked "AA".
+
+   Theme: <html data-theme="light|dark"> is set before first paint by the boot kernel.
+   Any element can opt into a theme locally with data-theme="…" (used by the comparison).
+   ========================================================================== */
+
+:root {
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", "Noto Sans Arabic", "Noto Sans JP", "Noto Sans SC", sans-serif;
+
+  /* shape (client: --radius-sm/md/lg/xl) */
+  --radius-sm: 0.75rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --t-fast: 0.1s;
+  --t-base: 0.2s;
+
+  /* layout: everything is rem, and the root font-size grows with the viewport (see base.css),
+     so a 2560 px screen gets the same composition at 150 % */
+  --container: 92rem;
+  --gutter: clamp(1.25rem, 6vw, 9rem);
+  --header-h: 4rem;
+  --section-y: clamp(4rem, 6.5vw, 8rem);
+}
+
+/* ---------- light (client default) ---------- */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  --page-bg: #e0e7ff;
+  --layout-bg: radial-gradient(
+    ellipse at 30% 20%,
+    #e8f0fe 0%,
+    #e0e7ff 35%,
+    #dbeafe 60%,
+    #bfdbfe 100%
+  );
+  --layout-sphere: radial-gradient(
+    circle at 30% 30%,
+    rgba(96, 165, 250, 0.5) 0%,
+    rgba(59, 130, 246, 0.35) 40%,
+    rgba(99, 102, 241, 0.2) 70%,
+    transparent 100%
+  );
+  --layout-sphere-left: radial-gradient(
+    circle at 70% 70%,
+    rgba(96, 165, 250, 0.5) 0%,
+    rgba(59, 130, 246, 0.35) 40%,
+    rgba(99, 102, 241, 0.2) 70%,
+    transparent 100%
+  );
+  --layout-sphere-blur: 5rem;
+  --glow-a: rgba(96, 165, 250, 0.6);
+  --glow-b: rgba(129, 140, 248, 0.5);
+  --glow-c: rgba(56, 189, 248, 0.35);
+  --glare: rgba(255, 255, 255, 0.38);
+  --spot-a: rgba(255, 255, 255, 0.7);
+  --spot-b: rgba(255, 255, 255, 0.28);
+  --spot-border: rgba(59, 130, 246, 0.55);
+  --window-shadow: rgba(26, 58, 95, 0.5);
+
+  --glass-bg: rgba(255, 255, 255, 0.22);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  --glass-strong-bg: rgba(255, 255, 255, 0.62);
+  /* the flat header bar: dense, so nav text keeps its contrast over the shapes behind the page */
+  --header-bg: rgba(255, 255, 255, 0.8);
+  --chip-bg: rgba(255, 255, 255, 0.35);
+  --chip-bg-hover: rgba(255, 255, 255, 0.5);
+  --chip-border: rgba(255, 255, 255, 0.45);
+  --divider: rgba(30, 58, 95, 0.12);
+
+  --shadow-card: 0 0.5rem 2rem rgba(26, 58, 95, 0.12);
+  --shadow-pop: 0 1.5rem 3rem rgba(26, 58, 95, 0.18);
+
+  /* AA: the page background behind plain text is the blue gradient with the spheres (luminance
+     down to about 0.5), so the secondary tiers are darker than in the client */
+  --text-primary: #1e3a5f;
+  --text-secondary: #324a64;
+  --text-muted: #3b5169;
+  --text-strong: #3b5169;
+  --link: #1e40af;
+  --accent-text: #1e40af;
+  --focus-color: #4f46e5;
+
+  --brand-grad: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+  --brand-glow: 0 0.5rem 1.5rem rgba(59, 130, 246, 0.38);
+  --avatar-grad: linear-gradient(135deg, #60a5fa 0%, #818cf8 100%);
+  --avatar-border: rgba(255, 255, 255, 0.5);
+  --avatar-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+  --accent: #3b82f6;
+  --accent-soft: rgba(59, 130, 246, 0.14);
+  --online: #22c55e;
+  --danger: #dc2626; /* AA with white text (the client uses #ef4444) */
+
+  --bubble-other-time: #3b5169;
+  --bubble-other-bg: rgba(255, 255, 255, 0.45);
+  --bubble-other-border: rgba(255, 255, 255, 0.6);
+  --bubble-own-bg: rgba(96, 165, 250, 0.4);
+  --bubble-own-border: rgba(255, 255, 255, 0.5);
+  --bubble-own-time: rgba(30, 58, 95, 0.92);
+  --input-bg: rgba(255, 255, 255, 0.3);
+  --input-border: rgba(255, 255, 255, 0.55);
+  --field-bg: rgba(255, 255, 255, 0.55);
+  --field-border: rgba(30, 58, 95, 0.14);
+
+  --rail-logo: #1e40af;
+  --rail-btn: #1e3a5f;
+  --rail-hover-bg: rgba(255, 255, 255, 0.35);
+  --rail-hover-color: #1e40af;
+  --rail-active-bg: rgba(255, 255, 255, 0.55);
+  /* a highlighted row inside a card: lighter than a button, never bright enough to wash out text */
+  --row-lit-bg: rgba(255, 255, 255, 0.55);
+  --rail-divider: rgba(255, 255, 255, 0.35);
+
+  --menu-bg: rgba(255, 255, 255, 0.92);
+  --menu-border: rgba(255, 255, 255, 0.7);
+  --menu-shadow:
+    0 0.5rem 2rem rgba(26, 58, 95, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  --menu-color: #3f576e;
+  --menu-hover-bg: rgba(99, 102, 241, 0.12);
+  --menu-hover-color: #1e3a5f;
+  --menu-selected: #4f46e5;
+
+  --ring: 0 0 0 3px rgba(99, 102, 241, 0.55);
+  --scrollbar-thumb: rgba(100, 116, 139, 0.26);
+
+  /* which theme icon is shown (the theme you would switch TO) */
+  --icon-moon: block;
+  --icon-sun: none;
+}
+
+/* ---------- dark ---------- */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --page-bg: #0f172a;
+  --layout-bg: radial-gradient(
+    ellipse at 30% 20%,
+    #1e293b 0%,
+    #0f172a 50%,
+    #020617 100%
+  );
+  --layout-sphere: radial-gradient(
+    circle at 30% 30%,
+    rgba(129, 140, 248, 0.23) 0%,
+    rgba(99, 102, 241, 0.15) 25%,
+    rgba(59, 130, 246, 0.09) 50%,
+    rgba(79, 70, 229, 0.04) 75%,
+    transparent 100%
+  );
+  --layout-sphere-left: radial-gradient(
+    circle at 70% 70%,
+    rgba(129, 140, 248, 0.23) 0%,
+    rgba(99, 102, 241, 0.15) 25%,
+    rgba(59, 130, 246, 0.09) 50%,
+    rgba(79, 70, 229, 0.04) 75%,
+    transparent 100%
+  );
+  --layout-sphere-blur: 3.75rem;
+  --glow-a: rgba(99, 102, 241, 0.5);
+  --glow-b: rgba(59, 130, 246, 0.34);
+  --glow-c: rgba(129, 140, 248, 0.3);
+  --glare: rgba(165, 180, 252, 0.16);
+  --spot-a: rgba(129, 140, 248, 0.3);
+  --spot-b: rgba(129, 140, 248, 0.1);
+  --spot-border: rgba(165, 180, 252, 0.7);
+  --window-shadow: rgba(0, 0, 0, 0.75);
+
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --glass-strong-bg: rgba(15, 23, 42, 0.62);
+  --header-bg: rgba(15, 23, 42, 0.78);
+  --chip-bg: rgba(255, 255, 255, 0.1);
+  --chip-bg-hover: rgba(255, 255, 255, 0.18);
+  --chip-border: rgba(255, 255, 255, 0.12);
+  --divider: rgba(255, 255, 255, 0.08);
+
+  --shadow-card: 0 0.5rem 2rem rgba(0, 0, 0, 0.25);
+  --shadow-pop: 0 1.5rem 3rem rgba(0, 0, 0, 0.4);
+
+  --text-primary: #e2e8f0;
+  --text-secondary: #cbd5e1; /* the client uses #e2e8f0; softened for a visual hierarchy */
+  --text-muted: #b6c2d4; /* the client uses #94a3b8, too dim on the lit surfaces of the window */
+  --text-strong: #b6c2d4;
+  --link: #a5b4fc;
+  --accent-text: #a5b4fc;
+  --focus-color: #94a3b8;
+
+  --brand-grad: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+  --brand-glow: 0 0.5rem 1.75rem rgba(79, 70, 229, 0.45);
+  --avatar-grad: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+  --avatar-border: rgba(255, 255, 255, 0.2);
+  --avatar-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+  --accent: #6366f1;
+  --accent-soft: rgba(99, 102, 241, 0.2);
+
+  --bubble-other-time: #e2e8f0; /* the lit window glow leaves little room for dimmer small print */
+  --bubble-other-bg: rgba(255, 255, 255, 0.08);
+  --bubble-other-border: rgba(255, 255, 255, 0.12);
+  --bubble-own-bg: rgba(99, 102, 241, 0.4);
+  --bubble-own-border: rgba(255, 255, 255, 0.15);
+  --bubble-own-time: rgba(226, 232, 240, 0.92);
+  --input-bg: rgba(255, 255, 255, 0.06);
+  --input-border: rgba(255, 255, 255, 0.12);
+  --field-bg: rgba(255, 255, 255, 0.06);
+  --field-border: rgba(255, 255, 255, 0.14);
+
+  --rail-logo: #818cf8;
+  --rail-btn: rgba(255, 255, 255, 0.8);
+  --rail-hover-bg: rgba(255, 255, 255, 0.12);
+  --rail-hover-color: #a5b4fc;
+  --rail-active-bg: rgba(255, 255, 255, 0.15);
+  --row-lit-bg: rgba(255, 255, 255, 0.08);
+  --rail-divider: rgba(255, 255, 255, 0.1);
+
+  --menu-bg: rgba(30, 41, 59, 0.95);
+  --menu-border: rgba(255, 255, 255, 0.12);
+  --menu-shadow:
+    0 0.5rem 2rem rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --menu-color: #94a3b8;
+  --menu-hover-bg: rgba(99, 102, 241, 0.2);
+  --menu-hover-color: #e2e8f0;
+  --menu-selected: #a5b4fc;
+
+  --ring: 0 0 0 3px rgba(165, 180, 252, 0.45);
+  --scrollbar-thumb: rgba(148, 163, 184, 0.22);
+
+  --icon-moon: none;
+  --icon-sun: block;
+}
+
+@media (prefers-contrast: more) {
+  :root,
+  [data-theme="light"] {
+    --glass-border: rgba(30, 58, 95, 0.55);
+    --chip-border: rgba(30, 58, 95, 0.5);
+    --divider: rgba(30, 58, 95, 0.35);
+    --text-muted: #1e3a5f;
+    --text-secondary: #1e3a5f;
+  }
+
+  [data-theme="dark"] {
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --chip-border: rgba(255, 255, 255, 0.45);
+    --divider: rgba(255, 255, 255, 0.3);
+    --text-muted: #cbd5e1;
+    --text-secondary: #e2e8f0;
+  }
+}
+
+/* "Reduce transparency" (on Windows it follows the "Transparency effects" switch) asks for more
+   legible surfaces. The messenger itself ignores it, and replacing the glass with flat slabs
+   would erase the whole design, so the surfaces only get denser: still glass, easier to read. */
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  [data-theme="light"] {
+    --glass-bg: rgba(255, 255, 255, 0.5);
+    --glass-strong-bg: rgba(255, 255, 255, 0.8);
+    --header-bg: rgba(255, 255, 255, 0.92);
+    --chip-bg: rgba(255, 255, 255, 0.6);
+    --chip-bg-hover: rgba(255, 255, 255, 0.75);
+    --bubble-other-bg: rgba(255, 255, 255, 0.7);
+  }
+
+  [data-theme="dark"] {
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-strong-bg: rgba(15, 23, 42, 0.82);
+    --header-bg: rgba(15, 23, 42, 0.9);
+    --chip-bg: rgba(255, 255, 255, 0.14);
+    --chip-bg-hover: rgba(255, 255, 255, 0.22);
+    --bubble-other-bg: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* No backdrop-filter at all: translucent surfaces would show whatever is behind them unblurred. */
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  :root,
+  [data-theme="light"],
+  [data-theme="dark"] {
+    --glass-bg: var(--menu-bg);
+    --glass-strong-bg: var(--menu-bg);
+  }
+}

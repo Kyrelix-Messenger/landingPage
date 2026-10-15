@@ -1,0 +1,187 @@
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin-block-start: 2rem;
+}
+
+.facts li {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  color: var(--text-secondary);
+  font-size: 1.0625rem;
+}
+
+.facts svg {
+  color: var(--accent-text);
+}
+
+/* ---------- comparison ---------- */
+.compare {
+  --pos: 50%;
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  aspect-ratio: 16 / 10.5;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-pop);
+  direction: ltr;
+  touch-action: pan-y;
+}
+
+/* each theme layer is its own stacking context, so one can never paint over the other */
+.layer {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  color: var(--text-primary);
+}
+
+:global([dir="rtl"]) .layer {
+  direction: rtl;
+}
+
+/* the other theme: the part left of the divider (in a right-to-left page the list is on the
+   right, so the other theme takes the part right of it) */
+.top {
+  clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+}
+
+.topEnd {
+  clip-path: inset(0 0 0 var(--pos));
+}
+
+.frozen,
+.fill,
+.fill > div {
+  height: 100%;
+}
+
+.fill {
+  max-width: none;
+}
+
+/* the window fills the layer edge to edge */
+.fill [role="group"] {
+  aspect-ratio: auto;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* the frozen copies are decoration: no scrollbars */
+.frozen * {
+  scrollbar-width: none;
+}
+
+.frozen *::-webkit-scrollbar {
+  display: none;
+}
+
+.wrap {
+  direction: ltr;
+  container: cmp / inline-size;
+}
+
+.legend {
+  display: flex;
+  justify-content: space-between;
+  margin-block-start: 1rem;
+  padding-inline: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.handle {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: var(--pos);
+  z-index: 3;
+  width: 2px;
+  margin-inline-start: -1px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.08),
+    0 0 1.4rem rgba(99, 102, 241, 0.55);
+  pointer-events: none;
+}
+
+.knob {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  margin: -1.5rem 0 0 -1.5rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow-card);
+  color: #1e3a5f;
+  -webkit-backdrop-filter: blur(0.9rem);
+  backdrop-filter: blur(0.9rem);
+  transition:
+    box-shadow var(--t-fast) ease,
+    transform var(--t-fast) ease;
+}
+
+.range {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  opacity: 0;
+  cursor: ew-resize;
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: pan-y;
+}
+
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 0;
+  height: 100%;
+}
+
+.range::-moz-range-thumb {
+  width: 0;
+  height: 100%;
+  border: 0;
+}
+
+.range:hover ~ .handle .knob {
+  transform: scale(1.06);
+}
+
+.range:focus-visible ~ .handle .knob {
+  box-shadow: var(--ring), var(--shadow-card);
+}
+
+.range:focus-visible {
+  outline: none;
+}
+
+/* one pane at a time (the window is narrower than 34rem): a fixed height tall enough for the whole
+   navigation rail, down to the settings button */
+@container cmp (max-width: 34rem) {
+  .compare {
+    aspect-ratio: auto;
+    height: 27rem;
+  }
+}

@@ -1,0 +1,93 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  background: var(--layout-bg);
+}
+
+.dark {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.5s ease,
+    visibility 0s 0.5s;
+}
+
+:global(html[data-theme="dark"]) .dark {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.5s ease,
+    visibility 0s;
+}
+
+.mover {
+  position: absolute;
+  will-change: transform;
+}
+
+.topRight {
+  top: -19.7rem;
+  right: -19.7rem;
+}
+
+.bottomLeft {
+  bottom: -19.7rem;
+  left: -19.7rem;
+}
+
+/* the client's spheres: 945 px at 16 px, blurred */
+.sphere {
+  width: 59rem;
+  height: 59rem;
+  border-radius: 50%;
+  filter: blur(var(--layout-sphere-blur));
+}
+
+.sphereA {
+  background: var(--layout-sphere);
+  animation: drift-a 24s ease-in-out infinite alternate;
+}
+
+.sphereB {
+  background: var(--layout-sphere-left);
+  animation: drift-b 28s ease-in-out infinite alternate;
+}
+
+@keyframes drift-a {
+  to {
+    transform: translate3d(-4rem, 3.5rem, 0) scale(1.06);
+  }
+}
+
+@keyframes drift-b {
+  to {
+    transform: translate3d(5rem, -3rem, 0) scale(1.08);
+  }
+}
+
+@media (max-width: 768px) {
+  .sphere {
+    width: 24rem;
+    height: 24rem;
+    filter: blur(2.75rem);
+  }
+
+  .topRight {
+    top: -7.5rem;
+    right: -7.5rem;
+  }
+
+  .bottomLeft {
+    bottom: -7.5rem;
+    left: -7.5rem;
+  }
+}

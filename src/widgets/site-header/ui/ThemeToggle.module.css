@@ -1,0 +1,45 @@
+.toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--chip-border);
+  border-radius: 50%;
+  background: var(--chip-bg);
+  color: var(--text-strong);
+  -webkit-backdrop-filter: blur(0.75rem);
+  backdrop-filter: blur(0.75rem);
+  transition:
+    background-color var(--t-fast) ease,
+    border-color var(--t-fast) ease,
+    color var(--t-fast) ease,
+    box-shadow var(--t-fast) ease,
+    transform var(--t-fast) ease;
+}
+
+.toggle:hover {
+  background: var(--chip-bg-hover);
+  color: var(--text-primary);
+  box-shadow: var(--ring);
+}
+
+.toggle:active {
+  transform: scale(0.96);
+}
+
+/* the icon shows the theme you would switch TO (display comes from tokens.css, per theme) */
+.moon {
+  display: var(--icon-moon);
+}
+
+.sun {
+  display: var(--icon-sun);
+}
+
+@media (max-width: 420px) {
+  .toggle {
+    width: 2.625rem;
+    height: 2.625rem;
+  }
+}

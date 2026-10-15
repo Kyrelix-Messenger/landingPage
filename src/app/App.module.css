@@ -1,0 +1,33 @@
+.skip {
+  position: fixed;
+  z-index: 100;
+  inset-block-start: 0.75rem;
+  inset-inline-start: 0.75rem;
+  padding: 0.75rem 1.125rem;
+  border-radius: var(--radius-md);
+  background: var(--menu-bg);
+  box-shadow: var(--shadow-pop);
+  color: var(--text-primary);
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform 0.2s var(--ease-out);
+}
+
+.skip:focus {
+  transform: none;
+}
+
+/* soft glows may bleed past the content width; clip them at the viewport edge */
+.main {
+  overflow-x: clip;
+}
+
+.main :focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* sections receive focus after an anchor jump; no ring on the section itself */
+.main [tabindex="-1"]:focus {
+  outline: none;
+}

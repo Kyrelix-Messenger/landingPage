@@ -1,0 +1,25 @@
+.avatar {
+  --avatar-size: 2.75rem;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  border: 1px solid var(--avatar-border);
+  border-radius: 50%;
+  background: var(--avatar-grad);
+  box-shadow: var(--avatar-shadow);
+  color: #fff;
+  font-size: calc(var(--avatar-size) * 0.4);
+  font-weight: 600;
+  line-height: 1;
+  user-select: none;
+}
+
+.tone1 {
+  background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+}
+
+.tone2 {
+  background: linear-gradient(135deg, #a78bfa 0%, #6366f1 100%);
+}

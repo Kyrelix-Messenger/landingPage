@@ -1,0 +1,93 @@
+.panel {
+  container-type: inline-size;
+  padding: clamp(1.25rem, 1rem + 1vw, 2rem);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow), var(--shadow-card);
+  -webkit-backdrop-filter: blur(1.5rem) saturate(180%);
+  backdrop-filter: blur(1.5rem) saturate(180%);
+}
+
+/* ten names: two columns on a phone, a clean 5 x 2 grid as soon as the panel is wide enough */
+.chips {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+
+@container (min-width: 46rem) {
+  .chips {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+/* every state change is 0.1 s: hover, press, selection */
+.chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--chip-border);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  box-shadow: var(--glass-shadow);
+  color: var(--text-primary);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.2;
+  transition:
+    background-color var(--t-fast) ease,
+    border-color var(--t-fast) ease,
+    color var(--t-fast) ease,
+    box-shadow var(--t-fast) ease,
+    transform var(--t-fast) ease;
+}
+
+.chip:hover {
+  background: var(--chip-bg-hover);
+  border-color: var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--shadow-card);
+  transform: translateY(-1px);
+}
+
+.chip:active {
+  transform: scale(0.97);
+}
+
+.selected,
+.selected:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  background: var(--accent-soft);
+  color: var(--text-primary);
+}
+
+.note,
+.fallback {
+  margin-block-start: 1.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.note strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.fallback {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--chip-border);
+  border-radius: 1rem;
+  background: var(--accent-soft);
+}
+
+.fallback svg {
+  margin-block-start: 0.1rem;
+  color: var(--accent-text);
+}

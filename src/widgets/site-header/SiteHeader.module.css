@@ -1,0 +1,172 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  isolation: isolate;
+}
+
+/* A flat glass bar across the whole viewport. The glass sits on a pseudo-element: the language menu
+   and the phone nav are children of the bar, and a backdrop-filter inside another backdrop-filter
+   cannot see the page behind it. */
+.header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-block-end: 1px solid var(--glass-border);
+  background: var(--header-bg);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(1.75rem) saturate(180%);
+  backdrop-filter: blur(1.75rem) saturate(180%);
+  pointer-events: none;
+  transition:
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.scrolled::before {
+  box-shadow: var(--glass-shadow), var(--shadow-card);
+}
+
+.bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: min(var(--container), 100% - 2 * var(--gutter));
+  min-height: var(--header-h);
+  margin-inline: auto;
+}
+
+.nav {
+  display: flex;
+  gap: 0.25rem;
+  margin-inline: auto;
+}
+
+/* No pills, no glow: a link only changes its colour while it is hovered or pressed. */
+.link {
+  padding: 0.5rem 0.875rem;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color var(--t-fast) ease;
+}
+
+.link:hover {
+  color: var(--rail-hover-color);
+}
+
+.link:active {
+  color: var(--accent-text);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.menuButton {
+  display: none;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--chip-border);
+  border-radius: 50%;
+  background: var(--chip-bg);
+  color: var(--text-strong);
+  transition:
+    background-color var(--t-fast) ease,
+    color var(--t-fast) ease,
+    box-shadow var(--t-fast) ease;
+}
+
+.menuButton:hover {
+  background: var(--chip-bg-hover);
+  color: var(--text-primary);
+  box-shadow: var(--ring);
+}
+
+@media (max-width: 1040px) {
+  .link {
+    padding-inline: 0.625rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .menuButton {
+    display: inline-grid;
+  }
+
+  .nav {
+    position: absolute;
+    inset-block-start: calc(100% + 0.5rem);
+    inset-inline: 0;
+    flex-direction: column;
+    gap: 0.125rem;
+    margin: 0;
+    padding: 0.5rem;
+    border: 1px solid var(--menu-border);
+    border-radius: var(--radius-lg);
+    background: var(--menu-bg);
+    box-shadow: var(--menu-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-0.5rem);
+    transition:
+      opacity 0.2s ease,
+      transform 0.25s var(--ease-out),
+      visibility 0s 0.25s;
+    -webkit-backdrop-filter: blur(1.5rem);
+    backdrop-filter: blur(1.5rem);
+  }
+
+  .navOpen {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity 0.2s ease,
+      transform 0.25s var(--ease-out),
+      visibility 0s;
+  }
+
+  .link {
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+  }
+
+  .actions {
+    margin-inline-start: auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .bar {
+    gap: 0.5rem;
+  }
+
+  .actions {
+    gap: 0.375rem;
+  }
+
+  .menuButton {
+    width: 2.625rem;
+    height: 2.625rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav {
+    transform: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .header::before {
+    border-color: CanvasText;
+  }
+}

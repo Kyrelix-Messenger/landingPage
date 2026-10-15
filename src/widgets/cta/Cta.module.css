@@ -1,0 +1,102 @@
+.section {
+  width: min(var(--container), 100% - 2 * var(--gutter));
+  margin-inline: auto;
+  padding-block: 0 var(--section-y);
+}
+
+.panel {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.5rem 4rem;
+  padding: clamp(2rem, 1rem + 3.5vw, 5rem);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow), var(--shadow-pop);
+  -webkit-backdrop-filter: blur(1.75rem) saturate(180%);
+  backdrop-filter: blur(1.75rem) saturate(180%);
+  overflow: clip;
+}
+
+/* two soft colour fields, and the same cursor glow as the feature tiles */
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  z-index: -2;
+  background:
+    radial-gradient(closest-side at 22% 50%, var(--glow-a), transparent 70%),
+    radial-gradient(closest-side at 78% 55%, var(--glow-b), transparent 70%);
+  filter: blur(2rem);
+}
+
+.glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 48rem;
+  height: 48rem;
+  background: radial-gradient(
+    closest-side,
+    var(--spot-a) 0%,
+    var(--spot-b) 42%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: translate3d(-100%, -100%, 0);
+  transition: opacity var(--t-fast) ease;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+.panel:hover > .glow {
+  opacity: 1;
+}
+
+.copy {
+  max-width: 42rem;
+}
+
+.title {
+  font-size: clamp(2.25rem, 1.5rem + 3.2vw, 5.5rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+}
+
+.text {
+  margin-block-start: 1.25rem;
+  color: var(--text-secondary);
+  font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.375rem);
+}
+
+.action {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.host {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+@media (max-width: 900px) {
+  .panel {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (forced-colors: active) {
+  .panel::before,
+  .glow {
+    display: none;
+  }
+}

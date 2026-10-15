@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="theme-color"
+      content="#e0e7ff"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#0f172a"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <!--
+      Pre-paint kernel (src/shared/boot/boot.ts): picks the theme and the language, sets
+      <html lang dir translate> and the notranslate hint before the first paint. Keep it above
+      everything that renders. Replaced at build time by vite.config.ts.
+    -->
+    <!--kyrelix:boot-->
+
+    <title>Kyrelix: a messenger for chats, groups and channels</title>
+    <meta
+      name="description"
+      content="Kyrelix is a messenger for personal chats, group conversations and channels. Works in the browser, comes in ten languages, with light and dark themes."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Kyrelix" />
+    <meta
+      property="og:title"
+      content="Kyrelix: a messenger for chats, groups and channels"
+    />
+    <meta
+      property="og:description"
+      content="Personal chats, group conversations and channels. Works in the browser, comes in ten languages, with light and dark themes."
+    />
+    <meta name="twitter:card" content="summary" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <p style="padding: 2rem; font-family: system-ui, sans-serif">
+        Kyrelix needs JavaScript. The messenger itself is available at
+        <a href="https://web.kyrelix.org">web.kyrelix.org</a>.
+      </p>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
