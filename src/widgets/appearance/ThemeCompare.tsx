@@ -37,13 +37,27 @@ export function ThemeCompare() {
 
   const frame = useRef<HTMLDivElement>(null);
   const root = useRef<HTMLDivElement>(null);
+  const slider = useRef<HTMLInputElement>(null);
   const [anchor, setAnchor] = useState<number | null>(null);
   /** Null while the divider rests at its anchor; a number once it has been moved. */
   const [moved, setMoved] = useState<number | null>(null);
+  // The comparison contains two complete messenger mock-ups. Keep its space in the document, but
+  // do not create their DOM, filters and animations until the section is close to the viewport.
+  const nearViewport = useInView(root, {
+    once: true,
+    margin: "600px 0px",
+  });
   const inView = useInView(root, { once: true, amount: 0.6 });
   const reducedMotion = useReducedMotion();
 
   const position = moved ?? restingPosition(anchor);
+
+  // The introductory sweep used to set React state on every animation frame. Its subtree contains
+  // two complete static app previews, so move only the CSS variable and native range value instead.
+  const paintPosition = (value: number) => {
+    frame.current?.style.setProperty("--pos", `${value}%`);
+    if (slider.current) slider.current.value = String(value);
+  };
 
   // the sweep below reads the latest anchor without restarting whenever it changes
   const anchorRef = useRef<number | null>(null);
@@ -75,7 +89,7 @@ export function ThemeCompare() {
     const observer = new ResizeObserver(measure);
     observer.observe(box);
     return () => observer.disconnect();
-  }, [rtl]);
+  }, [nearViewport, rtl]);
 
   // one gentle sweep when it first scrolls into view, so it is clear the divider can be dragged
   useEffect(() => {
@@ -94,10 +108,10 @@ export function ThemeCompare() {
       if (stopped) return;
       const progress = Math.min(1, (now - start) / duration);
       const rest = restingPosition(anchorRef.current);
-      setMoved(
+      paintPosition(
         progress < 1
           ? rest + Math.sin(progress * Math.PI * 2) * 12 * (1 - progress * 0.3)
-          : null,
+          : rest,
       );
       if (progress < 1) frameId = requestAnimationFrame(step);
     };
@@ -121,48 +135,58 @@ export function ThemeCompare() {
   return (
     <div className={styles.wrap}>
       <div ref={root}>
-        <div
-          ref={frame}
-          className={styles.compare}
-          style={{ "--pos": `${position}%` } as CSSProperties}
-        >
-          <div className={styles.layer} data-theme={siteTheme}>
-            <FrozenPreview />
-          </div>
-          <div
-            className={cn(styles.layer, styles.top, rtl && styles.topEnd)}
-            data-theme={other}
-            aria-hidden="true"
-          >
-            <FrozenPreview />
-          </div>
+        {nearViewport ? (
+          <>
+            <div
+              ref={frame}
+              className={styles.compare}
+              style={{ "--pos": `${position}%` } as CSSProperties}
+            >
+              <div className={styles.layer} data-theme={siteTheme}>
+                <FrozenPreview />
+              </div>
+              <div
+                className={cn(styles.layer, styles.top, rtl && styles.topEnd)}
+                data-theme={other}
+                aria-hidden="true"
+              >
+                <FrozenPreview />
+              </div>
 
-          <input
-            className={styles.range}
-            type="range"
-            min={0}
-            max={100}
-            step={0.5}
-            value={position}
-            aria-label={t("appearance.compare")}
-            onChange={(event) => onChange(Number(event.target.value))}
-          />
-          <div className={styles.handle} aria-hidden="true">
-            <span className={styles.knob}>
-              <Icon name="compare" size="1.375rem" strokeWidth={2.25} />
-            </span>
-          </div>
-        </div>
-        <p className={styles.legend} aria-hidden="true">
-          <span dir="auto">
-            <Icon name={themeIcon(leftTheme)} size="1.125rem" />
-            {t(themeLabel(leftTheme))}
-          </span>
-          <span dir="auto">
-            {t(themeLabel(rightTheme))}
-            <Icon name={themeIcon(rightTheme)} size="1.125rem" />
-          </span>
-        </p>
+              <input
+                ref={slider}
+                className={styles.range}
+                type="range"
+                min={0}
+                max={100}
+                step={0.5}
+                value={position}
+                aria-label={t("appearance.compare")}
+                onChange={(event) => onChange(Number(event.target.value))}
+              />
+              <div className={styles.handle} aria-hidden="true">
+                <span className={styles.knob}>
+                  <Icon name="compare" size="1.375rem" strokeWidth={2.25} />
+                </span>
+              </div>
+            </div>
+            <p className={styles.legend} aria-hidden="true">
+              <span dir="auto">
+                <Icon name={themeIcon(leftTheme)} size="1.125rem" />
+                {t(themeLabel(leftTheme))}
+              </span>
+              <span dir="auto">
+                {t(themeLabel(rightTheme))}
+                <Icon name={themeIcon(rightTheme)} size="1.125rem" />
+              </span>
+            </p>
+          </>
+        ) : (
+          <>
+            <div className={styles.placeholder} aria-hidden="true" />
+            <div className={styles.legendPlaceholder} aria-hidden="true" />
+          </>
+        )}
       </div>
     </div>
   );

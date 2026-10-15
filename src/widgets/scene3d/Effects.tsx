@@ -130,7 +130,7 @@ export function Effects() {
         >
           {/* even slots are the thin bright ring, odd slots the soft wide one (see EffectsSim) */}
           {i % 2 === 0 ? (
-            <ringGeometry args={[0.96, 1, 128]} />
+            <ringGeometry args={[0.96, 1, 48]} />
           ) : (
             <planeGeometry args={[2.4, 2.4]} />
           )}

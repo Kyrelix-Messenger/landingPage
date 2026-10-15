@@ -21,7 +21,8 @@ const FRONT: CSSProperties = { ...LAYER, zIndex: 80 };
 
 const GL = {
   alpha: true,
-  antialias: true,
+  // The scene sits behind translucent content; MSAA spends a lot of fill rate without a visible gain.
+  antialias: false,
   powerPreference: "high-performance",
 } as const;
 
@@ -45,7 +46,9 @@ export default function Scene() {
         aria-hidden="true"
         style={BACK}
         flat
-        dpr={[1, 1.5]}
+        // Keep this decorative full-viewport canvas at CSS-pixel resolution. This cuts its pixel
+        // workload by up to 56% on the displays where the former 1.5 DPR cap was reached.
+        dpr={1}
         gl={GL}
         camera={camera}
         resize={{ scroll: false, debounce: { scroll: 0, resize: 100 } }}
@@ -57,7 +60,7 @@ export default function Scene() {
         aria-hidden="true"
         style={FRONT}
         flat
-        dpr={[1, 1.5]}
+        dpr={1}
         gl={GL}
         frameloop="demand"
         camera={camera}

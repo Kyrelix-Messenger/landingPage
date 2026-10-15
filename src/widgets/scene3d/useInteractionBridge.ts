@@ -6,9 +6,9 @@ const INTERACTIVE = 'a[href], button, summary, [role="button"], [data-fx]';
 
 /** How strong a press feels, by kind of element. */
 const POWER: Record<FxKind, number> = {
-  primary: 1,
-  control: 0.62,
-  surface: 0.38,
+  primary: 0.55,
+  control: 0.34,
+  surface: 0.16,
 };
 
 function kindOf(element: Element): FxKind {
@@ -25,6 +25,9 @@ export function useInteractionBridge(): void {
   useEffect(() => {
     let hovered: Element | null = null;
     let frame = 0;
+    let pointerFrame = 0;
+    let pointerX = 0;
+    let pointerY = 0;
 
     const publish = () => {
       frame = 0;
@@ -54,11 +57,18 @@ export function useInteractionBridge(): void {
     };
     const onMove = (event: PointerEvent) => {
       if (event.pointerType === "touch") return;
-      if (fx.pointer) {
-        fx.pointer.x = event.clientX;
-        fx.pointer.y = event.clientY;
-      } else {
-        fx.pointer = { x: event.clientX, y: event.clientY };
+      pointerX = event.clientX;
+      pointerY = event.clientY;
+      if (!pointerFrame) {
+        pointerFrame = requestAnimationFrame(() => {
+          pointerFrame = 0;
+          if (fx.pointer) {
+            fx.pointer.x = pointerX;
+            fx.pointer.y = pointerY;
+          } else {
+            fx.pointer = { x: pointerX, y: pointerY };
+          }
+        });
       }
     };
     const onDown = (event: PointerEvent) => {
@@ -68,6 +78,8 @@ export function useInteractionBridge(): void {
     };
     const onLeave = () => {
       hovered = null;
+      cancelAnimationFrame(pointerFrame);
+      pointerFrame = 0;
       fx.pointer = null;
       schedule();
     };
@@ -87,6 +99,7 @@ export function useInteractionBridge(): void {
       document.documentElement.removeEventListener("pointerleave", onLeave);
       window.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(frame);
+      cancelAnimationFrame(pointerFrame);
       fx.target = null;
       fx.pointer = null;
     };

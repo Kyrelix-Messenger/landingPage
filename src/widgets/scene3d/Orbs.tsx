@@ -14,9 +14,11 @@ function Geometry({ shape }: { shape: OrbShape }) {
       // detail 0: flat facets, so the rim light reads as a cut stone
       return <icosahedronGeometry args={[1, 0]} />;
     case "ring":
-      return <torusGeometry args={[1, 0.2, 32, 96]} />;
+      return <torusGeometry args={[1, 0.2, 16, 48]} />;
     default:
-      return <sphereGeometry args={[1, 64, 48]} />;
+      // These objects are soft, translucent background decoration. A denser mesh is invisible
+      // behind the glass, while it costs every frame.
+      return <sphereGeometry args={[1, 24, 18]} />;
   }
 }
 

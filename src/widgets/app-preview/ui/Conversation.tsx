@@ -73,6 +73,8 @@ interface ConversationProps {
   typing: boolean;
   onSend: (text: string) => void;
   onBack: () => void;
+  /** Frozen copies in the theme comparison never change, so they do not need a ResizeObserver. */
+  followMessages?: boolean;
 }
 
 /** Header, message history and composer of the open chat. */
@@ -82,6 +84,7 @@ export const Conversation = memo(function Conversation({
   typing,
   onSend,
   onBack,
+  followMessages = true,
 }: ConversationProps) {
   const { t } = useTranslation();
   const format = useFormatTime();
@@ -94,6 +97,7 @@ export const Conversation = memo(function Conversation({
   // Keep the newest message in view while rows grow: follow the list's height frame by frame
   // (a one-off smooth scroll would only reach the height the list had when it started).
   useEffect(() => {
+    if (!followMessages) return;
     const box = scroller.current;
     const content = list.current;
     if (!box || !content) return;
@@ -114,7 +118,7 @@ export const Conversation = memo(function Conversation({
       observer.disconnect();
       box.removeEventListener("scroll", onScroll);
     };
-  }, [chat.id]);
+  }, [chat.id, followMessages]);
 
   const status =
     chat.kind === "direct" ? (

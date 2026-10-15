@@ -36,13 +36,18 @@ function canUseWebGL(): boolean {
 
 /** Devices that should not pay for decoration: data saver, very few cores. */
 function isConstrained(): boolean {
-  const connection = (
-    navigator as Navigator & { connection?: { saveData?: boolean } }
-  ).connection;
+  const device = navigator as Navigator & {
+    connection?: { saveData?: boolean };
+    deviceMemory?: number;
+  };
+  const connection = device.connection;
+  const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
   return (
     connection?.saveData === true ||
+    coarsePointer ||
+    (device.deviceMemory !== undefined && device.deviceMemory <= 4) ||
     (navigator.hardwareConcurrency !== undefined &&
-      navigator.hardwareConcurrency <= 2)
+      navigator.hardwareConcurrency <= 4)
   );
 }
 
@@ -54,9 +59,25 @@ function isConstrained(): boolean {
 export const Scene3D = memo(function Scene3D() {
   const reducedMotion = useReducedMotion();
   const [ready, setReady] = useState(false);
+  const [pageVisible, setPageVisible] = useState(
+    () => document.visibilityState === "visible",
+  );
+
+  // A decorative canvas must not keep a GPU context and a frame loop alive in a background tab.
+  useEffect(() => {
+    const update = () => setPageVisible(document.visibilityState === "visible");
+    document.addEventListener("visibilitychange", update);
+    return () => document.removeEventListener("visibilitychange", update);
+  }, []);
 
   useEffect(() => {
-    if (reducedMotion || isConstrained() || !canUseWebGL()) return;
+    if (
+      !pageVisible ||
+      reducedMotion ||
+      isConstrained() ||
+      !canUseWebGL()
+    )
+      return;
     const start = () => setReady(true);
     if (typeof window.requestIdleCallback === "function") {
       const id = window.requestIdleCallback(start, { timeout: 2500 });
@@ -64,9 +85,9 @@ export const Scene3D = memo(function Scene3D() {
     }
     const id = window.setTimeout(start, 1200);
     return () => window.clearTimeout(id);
-  }, [reducedMotion]);
+  }, [pageVisible, reducedMotion]);
 
-  if (reducedMotion || !ready) return null;
+  if (reducedMotion || !pageVisible || !ready) return null;
   return (
     <Fallback>
       <Suspense fallback={null}>

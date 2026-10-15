@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { m, useTransform } from "framer-motion";
 import { usePointerSpring } from "@/shared/lib/pointer";
+import { useThemeStore } from "@/shared/theme";
 import styles from "./SiteBackground.module.css";
 
 /**
@@ -10,6 +11,7 @@ import styles from "./SiteBackground.module.css";
  */
 export const SiteBackground = memo(function SiteBackground() {
   const { x, y } = usePointerSpring();
+  const activeTheme = useThemeStore((state) => state.theme);
   const farX = useTransform(x, (v) => v * -90);
   const farY = useTransform(y, (v) => v * -70);
   const nearX = useTransform(x, (v) => v * 130);
@@ -20,20 +22,18 @@ export const SiteBackground = memo(function SiteBackground() {
       {(["light", "dark"] as const).map((theme) => (
         <div
           key={theme}
-          className={
-            theme === "dark" ? `${styles.layer} ${styles.dark}` : styles.layer
-          }
+          className={styles.layer}
           data-theme={theme}
         >
           <m.div
             className={`${styles.mover} ${styles.topRight}`}
-            style={{ x: farX, y: farY }}
+            style={theme === activeTheme ? { x: farX, y: farY } : undefined}
           >
             <div className={`${styles.sphere} ${styles.sphereA}`} />
           </m.div>
           <m.div
             className={`${styles.mover} ${styles.bottomLeft}`}
-            style={{ x: nearX, y: nearY }}
+            style={theme === activeTheme ? { x: nearX, y: nearY } : undefined}
           >
             <div className={`${styles.sphere} ${styles.sphereB}`} />
           </m.div>

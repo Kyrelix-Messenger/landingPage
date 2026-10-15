@@ -11,9 +11,6 @@
   position: absolute;
   inset: 0;
   background: var(--layout-bg);
-}
-
-.dark {
   opacity: 0;
   visibility: hidden;
   transition:
@@ -21,7 +18,8 @@
     visibility 0s 0.5s;
 }
 
-:global(html[data-theme="dark"]) .dark {
+:global(html[data-theme="light"]) .layer[data-theme="light"],
+:global(html[data-theme="dark"]) .layer[data-theme="dark"] {
   opacity: 1;
   visibility: visible;
   transition:
@@ -54,11 +52,21 @@
 
 .sphereA {
   background: var(--layout-sphere);
-  animation: drift-a 24s ease-in-out infinite alternate;
 }
 
 .sphereB {
   background: var(--layout-sphere-left);
+}
+
+/* Only the visible theme gets compositor animation; the old version animated all four large,
+   blurred layers even though two were fully covered. */
+:global(html[data-theme="light"]) .layer[data-theme="light"] .sphereA,
+:global(html[data-theme="dark"]) .layer[data-theme="dark"] .sphereA {
+  animation: drift-a 24s ease-in-out infinite alternate;
+}
+
+:global(html[data-theme="light"]) .layer[data-theme="light"] .sphereB,
+:global(html[data-theme="dark"]) .layer[data-theme="dark"] .sphereB {
   animation: drift-b 28s ease-in-out infinite alternate;
 }
 

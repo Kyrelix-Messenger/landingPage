@@ -180,13 +180,13 @@ export class OrbField {
         const dist = Math.hypot(dx, dy) || 1;
         if (dist >= reach) continue;
         const falloff = (1 - dist / reach) ** 2;
-        const speed = burst.power * falloff * unit * 0.9;
+        const speed = burst.power * falloff * unit * 0.45;
         this.sx[i].v += (dx / dist) * speed;
         this.sy[i].v += (dy / dist) * speed;
-        this.ss[i].v += burst.power * falloff * 5;
+        this.ss[i].v += burst.power * falloff * 2.25;
         this.sg[i].x = Math.min(
           1.2,
-          this.sg[i].x + burst.power * falloff * 0.9,
+          this.sg[i].x + burst.power * falloff * 0.45,
         );
       }
     }

@@ -31,6 +31,20 @@
   touch-action: pan-y;
 }
 
+/* Reserves the comparison's exact visual footprint until its two mock-ups are needed. */
+.placeholder {
+  aspect-ratio: 16 / 10.5;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  background: var(--glass-bg);
+  box-shadow: var(--shadow-pop);
+}
+
+.legendPlaceholder {
+  min-height: 1.5rem;
+  margin-block-start: 1rem;
+}
+
 /* each theme layer is its own stacking context, so one can never paint over the other */
 .layer {
   position: absolute;
@@ -180,7 +194,8 @@
 /* one pane at a time (the window is narrower than 34rem): a fixed height tall enough for the whole
    navigation rail, down to the settings button */
 @container cmp (max-width: 34rem) {
-  .compare {
+  .compare,
+  .placeholder {
     aspect-ratio: auto;
     height: 27rem;
   }

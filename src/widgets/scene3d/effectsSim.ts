@@ -2,8 +2,8 @@ import { easeOutCubic } from "./math3d";
 
 /** World units here are CSS pixels on the z = 0 plane, x to the right and y UP (see math3d.ts). */
 
-export const MAX_RINGS = 8;
-export const MAX_SHARDS = 112;
+export const MAX_RINGS = 6;
+export const MAX_SHARDS = 48;
 
 export interface Ring {
   alive: boolean;
@@ -74,24 +74,24 @@ export class EffectsSim {
     power: number,
     random: () => number = Math.random,
   ): void {
-    const p = Math.min(1, Math.max(0.1, power));
+    const p = Math.min(1, Math.max(0.05, power));
 
-    this.spawnRing(x, y, 90 + 170 * p, 0.85, random, false);
-    this.spawnRing(x, y, 130 + 250 * p, 1.05, random, true);
+    this.spawnRing(x, y, 42 + 76 * p, 0.5, random, false);
+    this.spawnRing(x, y, 58 + 104 * p, 0.64, random, true);
 
-    const count = Math.round(8 + 16 * p);
+    const count = Math.round(3 + 6 * p);
     for (let n = 0; n < count; n++) {
       const i = this.nextShard;
       this.nextShard = (this.nextShard + 1) % MAX_SHARDS;
       const theta = random() * Math.PI * 2;
-      const speed = (170 + random() * 380) * (0.5 + p * 0.7);
+      const speed = (95 + random() * 170) * (0.45 + p * 0.55);
       this.alive[i] = 1;
       this.px[i] = x;
       this.py[i] = y;
       this.pz[i] = 0;
       this.vx[i] = Math.cos(theta) * speed;
-      this.vy[i] = Math.sin(theta) * speed + 90 * p;
-      this.vz[i] = (random() - 0.35) * 320 * p;
+      this.vy[i] = Math.sin(theta) * speed + 42 * p;
+      this.vz[i] = (random() - 0.35) * 140 * p;
       this.rx[i] = random() * 6.28;
       this.ry[i] = random() * 6.28;
       this.rz[i] = random() * 6.28;
@@ -99,8 +99,8 @@ export class EffectsSim {
       this.wy[i] = (random() - 0.5) * 16;
       this.wz[i] = (random() - 0.5) * 16;
       this.age[i] = 0;
-      this.life[i] = 0.65 + random() * 0.55;
-      this.base[i] = (5 + random() * 9) * (0.65 + p * 0.5);
+      this.life[i] = 0.36 + random() * 0.28;
+      this.base[i] = (3 + random() * 4) * (0.55 + p * 0.35);
       this.size[i] = this.base[i];
       this.tone[i] = Math.floor(random() * 4);
     }

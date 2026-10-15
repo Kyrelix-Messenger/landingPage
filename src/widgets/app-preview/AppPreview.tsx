@@ -54,7 +54,7 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
     });
   }, [theme, siteTheme]);
   const demo = useDemoChat(interactive);
-  const { x, y } = usePointerSpring();
+  const { x, y } = usePointerSpring(interactive);
 
   // window: turns towards the cursor; spheres move against it at different depths
   const rotateY = useTransform(x, [-0.5, 0.5], [-5.5, 5.5]);
@@ -158,6 +158,7 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
           typing={state.typing === activeId}
           onSend={demo.send}
           onBack={showList}
+          followMessages={interactive}
         />
       </>
     );
