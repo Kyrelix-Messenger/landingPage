@@ -154,7 +154,7 @@ export const Conversation = memo(function Conversation({
         </button>
         <Avatar name={t(chat.name)} tone={chat.tone} size="2.75rem" />
         <div className={styles.who}>
-          <h3 className={styles.whoName}>{t(chat.name)}</h3>
+          <p className={styles.whoName}>{t(chat.name)}</p>
           {status}
         </div>
       </header>

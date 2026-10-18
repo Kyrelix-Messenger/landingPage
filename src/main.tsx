@@ -18,6 +18,14 @@ async function start(): Promise<void> {
   const boot = window.__KYRELIX_BOOT__;
   if (!boot) return;
 
+  // History navigation changes the base of relative URLs. Keep head assets at their
+  // original address so / -> /ru/ does not make the browser request /ru/favicon.svg.
+  document
+    .querySelectorAll<HTMLLinkElement>(
+      'link[rel="icon"], link[rel="modulepreload"]',
+    )
+    .forEach((link) => link.setAttribute("href", link.href));
+
   initTheme(boot);
   const pageLocale =
     findLocale(document.documentElement.dataset.locale)?.code ??

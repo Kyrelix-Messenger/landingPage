@@ -136,7 +136,7 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
           strokeWidth={1.25}
           className={styles.callsIcon}
         />
-        <h3 className={styles.callsTitle}>{t("demo.calls")}</h3>
+        <p className={styles.callsTitle}>{t("demo.calls")}</p>
         <p className={styles.callsText}>{t("demo.callsText")}</p>
       </section>
     ) : (

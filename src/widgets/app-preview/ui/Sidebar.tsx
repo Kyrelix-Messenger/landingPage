@@ -50,7 +50,7 @@ export const Sidebar = memo(function Sidebar({
   return (
     <section className={cn(styles.panel, styles.sidebar)} data-anchor="list">
       <header className={styles.sidebarHead}>
-        <h3 className={styles.sidebarTitle}>{t(title)}</h3>
+        <p className={styles.sidebarTitle}>{t(title)}</p>
         <label className={styles.search}>
           <Icon name="search" size="1.125rem" />
           <input

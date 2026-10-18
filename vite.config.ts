@@ -70,6 +70,41 @@ function slimThree(): Plugin {
   };
 }
 
+/** Do not let shared dependencies of a manually named chunk pull WebGL into the entry graph. */
+function checkLazyScene(): Plugin {
+  let ssr = false;
+  return {
+    name: "kyrelix:check-lazy-scene",
+    apply: "build",
+    configResolved(config) {
+      ssr = !!config.build.ssr;
+    },
+    generateBundle(_options, bundle) {
+      if (ssr) return;
+      const visited = new Set<string>();
+      const check = (fileName: string): void => {
+        if (visited.has(fileName)) return;
+        visited.add(fileName);
+        const chunk = bundle[fileName];
+        if (!chunk || chunk.type !== "chunk") return;
+        for (const moduleId of chunk.moduleIds) {
+          if (
+            /\/node_modules\/(?:three\/|@react-three\/fiber\/|react-reconciler\/)/.test(
+              moduleId.replace(/\\/g, "/"),
+            )
+          )
+            this.error(
+              `A 3D dependency was included in the initial page bundle: ${moduleId}`,
+            );
+        }
+        chunk.imports.forEach(check);
+      };
+      for (const chunk of Object.values(bundle))
+        if (chunk.type === "chunk" && chunk.isEntry) check(chunk.fileName);
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ isSsrBuild }) => ({
   base: "./",
@@ -78,7 +113,7 @@ export default defineConfig(({ isSsrBuild }) => ({
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
-  plugins: [react(), inlineBoot(), slimThree()],
+  plugins: [react(), inlineBoot(), slimThree(), checkLazyScene()],
   server: { port: 5180 },
   preview: { port: 5181 },
   build: {
@@ -86,15 +121,25 @@ export default defineConfig(({ isSsrBuild }) => ({
     chunkSizeWarningLimit: 800,
     rollupOptions: {
       output: {
+        // The object form used to capture shared scheduler code inside vendor-r3f,
+        // making React DOM import the entire 3D renderer even on phones.
+        onlyExplicitManualChunks: true,
         manualChunks: isSsrBuild
           ? undefined
-          : {
-              "vendor-react": ["react", "react-dom"],
-              "vendor-ui": ["framer-motion"],
-              "vendor-state": ["zustand"],
-              // 3D: loaded lazily, after the page is up (see widgets/scene3d/Scene3D.tsx)
-              "vendor-three": ["three"],
-              "vendor-r3f": ["@react-three/fiber"],
+          : (id) => {
+              const moduleId = id.replace(/\\/g, "/");
+              if (
+                /\/node_modules\/(?:react|react-dom|scheduler)\//.test(moduleId)
+              )
+                return "vendor-react";
+              if (
+                /\/node_modules\/(?:framer-motion|motion-dom|motion-utils)\//.test(
+                  moduleId,
+                )
+              )
+                return "vendor-ui";
+              // Let Rollup keep three.js, R3F and their private dependencies behind import("./Scene").
+              return undefined;
             },
       },
     },

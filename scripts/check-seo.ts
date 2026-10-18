@@ -32,6 +32,29 @@ for (const locale of LOCALES) {
     1,
     `${locale.code}: one main region`,
   );
+  let previousHeading = 0;
+  for (const heading of html.matchAll(/<h([1-6])\b/g)) {
+    const level = Number(heading[1]);
+    assert.ok(
+      level <= previousHeading + 1,
+      `${locale.code}: heading order skips H${previousHeading} to H${level}`,
+    );
+    previousHeading = level;
+  }
+  assert.ok(
+    html.includes("<style data-kyrelix-styles>"),
+    `${locale.code}: inline page styles`,
+  );
+  assert.ok(
+    !/<link\b[^>]*\brel="stylesheet"/.test(html),
+    `${locale.code}: no render-blocking stylesheet request`,
+  );
+  assert.ok(
+    !/<link\b[^>]*\brel="modulepreload"[^>]*(?:vendor-three|vendor-r3f|\/Scene-)/.test(
+      html,
+    ),
+    `${locale.code}: no eager 3D preload`,
+  );
   for (const key of [
     "hero.title1",
     "hero.title2",

@@ -14,7 +14,22 @@ import {
 const root = fileURLToPath(new URL("..", import.meta.url));
 const output = resolve(root, "dist");
 const serverOutput = resolve(root, "node_modules/.cache/kyrelix-prerender");
-const template = await readFile(join(output, "index.html"), "utf8");
+let template = await readFile(join(output, "index.html"), "utf8");
+// This landing page has a small, self-contained stylesheet and no external fonts or CSS assets.
+// Inline the exact built CSS so the static page can paint without a second network round trip.
+for (const [tag] of template.matchAll(
+  /<link\b[^>]*\brel="stylesheet"[^>]*>/g,
+)) {
+  const href = tag.match(/\bhref="([^"]+)"/)?.[1];
+  assert.ok(href, "Expected a stylesheet URL");
+  assert.ok(href.startsWith("./assets/"), "Expected a local built stylesheet");
+  const css = await readFile(join(output, href), "utf8");
+  template = template.replace(
+    tag,
+    () =>
+      `<style data-kyrelix-styles>${css.replace(/<\/style/gi, "<\\/style")}</style>`,
+  );
+}
 const seoRegion = /<!--kyrelix:seo:start-->[\s\S]*?<!--kyrelix:seo:end-->/;
 assert.match(
   template,
