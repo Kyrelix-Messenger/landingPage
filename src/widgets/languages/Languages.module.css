@@ -39,6 +39,7 @@
   font-size: 1.0625rem;
   font-weight: 500;
   line-height: 1.2;
+  text-decoration: none;
   transition:
     background-color var(--t-fast) ease,
     border-color var(--t-fast) ease,

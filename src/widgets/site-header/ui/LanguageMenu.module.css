@@ -93,6 +93,7 @@
   font-size: 0.9375rem;
   font-weight: 500;
   line-height: 1.2;
+  text-decoration: none;
   cursor: pointer;
   transition:
     background-color var(--t-fast) ease,

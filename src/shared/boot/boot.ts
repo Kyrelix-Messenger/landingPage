@@ -8,8 +8,8 @@
  *
  * It must stay free of imports (the inline copy is compiled on its own).
  *
- * Language: ?lang=xx  →  the language chosen on the site (localStorage)  →  the first supported
- * entry of navigator.languages  →  English.
+ * Language: legacy ?lang=xx → the static page's locale. Browser/storage detection remains a
+ * fallback for callers without a page locale. Public pages keep a stable language per URL.
  *
  * Translation hints: when the site is shown in a language it supports natively (or the
  * visitor's own language is supported), machine translation is switched off
@@ -93,17 +93,28 @@ export interface LocaleInput {
   languages: readonly string[];
   saved: string | null;
   query: string | null;
+  page?: string | null;
+}
+
+/** A translated directory, including /ru/index.html and GitHub Pages project paths. */
+export function pathLocale(pathname: string): LocaleCode | null {
+  const directory = pathname.replace(/\/index\.html$/, "").replace(/\/$/, "");
+  return findLocale(directory.split("/").pop())?.code ?? null;
 }
 
 export function resolveLocale(input: LocaleInput) {
   const browser = matchLanguages(input.languages);
   const fromUrl = matchTag(input.query);
+  const page = findLocale(input.page)?.code ?? null;
   const saved = findLocale(input.saved)?.code ?? null;
 
   let code: LocaleCode = DEFAULT_LOCALE;
   let source: LocaleSource = "default";
   if (fromUrl) {
     code = fromUrl;
+    source = "url";
+  } else if (page) {
+    code = page;
     source = "url";
   } else if (saved) {
     code = saved;
@@ -235,6 +246,10 @@ export function bootstrap(): void {
     languages: browserLanguages(),
     saved: readStored(STORAGE_KEYS.locale),
     query,
+    page:
+      pathLocale(window.location.pathname) ??
+      document.documentElement.dataset.locale ??
+      DEFAULT_LOCALE,
   });
   const allow = allowsMachineTranslation(locale.code, locale.userSupported);
   applyLocaleAttributes(locale.code, allow);

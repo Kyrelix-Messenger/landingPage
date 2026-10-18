@@ -1,4 +1,11 @@
-import { useEffect, useId, useState, type MouseEvent, memo } from "react";
+import {
+  useEffect,
+  useId,
+  useState,
+  useSyncExternalStore,
+  type MouseEvent,
+  memo,
+} from "react";
 import { useTranslation, type TranslationKey } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
 import { Brand } from "@/shared/ui/brand/Brand";
@@ -14,18 +21,21 @@ const LINKS: ReadonlyArray<{ href: string; label: TranslationKey }> = [
   { href: "#faq", label: "nav.faq" },
 ];
 
+function subscribeScroll(update: () => void): () => void {
+  window.addEventListener("scroll", update, { passive: true });
+  return () => window.removeEventListener("scroll", update);
+}
+
 /** A flat bar across the whole viewport: brand, sections, language and theme. No call to action. */
 export const SiteHeader = memo(function SiteHeader() {
   const { t } = useTranslation();
   const navId = useId();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(() => window.scrollY > 8);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const scrolled = useSyncExternalStore(
+    subscribeScroll,
+    () => window.scrollY > 8,
+    () => false,
+  );
 
   // the phone menu closes on Escape, on an outside tap and when the window grows past the breakpoint
   useEffect(() => {

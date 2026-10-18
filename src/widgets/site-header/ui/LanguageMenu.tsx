@@ -3,6 +3,7 @@ import { LOCALES, findLocale } from "@/shared/boot/boot";
 import { useLocaleStore, useTranslation } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
 import { Icon } from "@/shared/ui/icon/Icon";
+import { LocaleLink } from "@/shared/ui/locale-link/LocaleLink";
 import styles from "./LanguageMenu.module.css";
 
 /** Language picker: a pill trigger and a listbox with the same keyboard model as the messenger's. */
@@ -126,24 +127,26 @@ export function LanguageMenu() {
         onKeyDown={onListKeyDown}
       >
         {LOCALES.map((item, index) => (
-          <li
-            key={item.code}
-            role="option"
-            aria-selected={item.code === locale}
-            data-index={index}
-            tabIndex={open && index === active ? 0 : -1}
-            className={styles.option}
-            lang={item.html}
-            translate="no"
-            onClick={() => choose(index)}
-          >
-            <span>{item.name}</span>
-            <Icon
-              name="check"
-              size="1rem"
-              strokeWidth={2.5}
-              className={styles.check}
-            />
+          <li key={item.code} role="presentation">
+            <LocaleLink
+              locale={item.code}
+              role="option"
+              aria-selected={item.code === locale}
+              data-index={index}
+              tabIndex={open && index === active ? 0 : -1}
+              className={styles.option}
+              lang={item.html}
+              translate="no"
+              onClick={() => close(true)}
+            >
+              <span>{item.name}</span>
+              <Icon
+                name="check"
+                size="1rem"
+                strokeWidth={2.5}
+                className={styles.check}
+              />
+            </LocaleLink>
           </li>
         ))}
       </ul>

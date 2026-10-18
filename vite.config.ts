@@ -2,6 +2,9 @@ import { defineConfig, transformWithEsbuild, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath, URL } from "node:url";
+import { LOCALES } from "./src/shared/boot/boot";
+import { en } from "./src/shared/i18n/dictionaries/en";
+import { renderSeoHead } from "./src/shared/seo/metadata";
 
 const BOOT_FILE = fileURLToPath(
   new URL("./src/shared/boot/boot.ts", import.meta.url),
@@ -24,10 +27,24 @@ function inlineBoot(): Plugin {
         BOOT_FILE,
         { loader: "ts", format: "iife", minify: true, target: "es2019" },
       );
-      return html.replace(
-        "<!--kyrelix:boot-->",
-        () => `<script>${code}</script>`,
-      );
+      return html
+        .replace("<!--kyrelix:boot-->", () => `<script>${code}</script>`)
+        .replace(
+          "<!--kyrelix:seo-->",
+          () =>
+            `<!--kyrelix:seo:start-->\n    ${renderSeoHead("en", en)}\n    <!--kyrelix:seo:end-->`,
+        );
+    },
+    configureServer(server) {
+      const codes = LOCALES.filter((item) => item.code !== "en")
+        .map((item) => item.code)
+        .join("|");
+      const route = new RegExp(`^/(?:${codes})(?:/(?:index\\.html)?)?$`);
+      server.middlewares.use((request, _response, next) => {
+        const url = new URL(request.url ?? "/", "http://localhost");
+        if (route.test(url.pathname)) request.url = `/index.html${url.search}`;
+        next();
+      });
     },
   };
 }
@@ -54,8 +71,10 @@ function slimThree(): Plugin {
 }
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
   base: "./",
+  // A missing static page must return 404 instead of another copy of the English landing page.
+  appType: "mpa",
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
@@ -67,15 +86,17 @@ export default defineConfig({
     chunkSizeWarningLimit: 800,
     rollupOptions: {
       output: {
-        manualChunks: {
-          "vendor-react": ["react", "react-dom"],
-          "vendor-ui": ["framer-motion"],
-          "vendor-state": ["zustand"],
-          // 3D: loaded lazily, after the page is up (see widgets/scene3d/Scene3D.tsx)
-          "vendor-three": ["three"],
-          "vendor-r3f": ["@react-three/fiber"],
-        },
+        manualChunks: isSsrBuild
+          ? undefined
+          : {
+              "vendor-react": ["react", "react-dom"],
+              "vendor-ui": ["framer-motion"],
+              "vendor-state": ["zustand"],
+              // 3D: loaded lazily, after the page is up (see widgets/scene3d/Scene3D.tsx)
+              "vendor-three": ["three"],
+              "vendor-r3f": ["@react-three/fiber"],
+            },
       },
     },
   },
-});
+}));

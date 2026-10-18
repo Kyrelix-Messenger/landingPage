@@ -167,7 +167,9 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
     <div
       ref={stageRef}
       className={cn(styles.stage, className)}
-      data-theme={interactive ? theme : undefined}
+      data-theme={
+        interactive && override?.site === siteTheme ? theme : undefined
+      }
     >
       {interactive && (
         <>

@@ -4,9 +4,9 @@
  * short plain sentences, no dashes as punctuation, no marketing superlatives, no markup.
  */
 export const en = {
-  "meta.title": "Kyrelix: a messenger for chats, groups and channels",
+  "meta.title": "Kyrelix: online messenger for chats, groups and channels",
   "meta.description":
-    "Kyrelix is a messenger for personal chats, group conversations and channels. Works in the browser, comes in ten languages, with light and dark themes.",
+    "Open Kyrelix in your browser for personal chats, group conversations and channels. Ten interface languages, light and dark themes. Start chatting on the web.",
 
   "a11y.skip": "Skip to content",
   "a11y.demo": "Interactive preview of the Kyrelix messenger",

@@ -7,15 +7,16 @@ A single-page site for the Kyrelix messenger. React 19, TypeScript, Vite 7, fram
 ```bash
 npm install
 npm run dev            # http://localhost:5180
-npm run build          # tsc -b && vite build, output in dist/
+npm run build          # types, client build, 10 static locale pages and SEO checks; output in dist/
 npm run preview        # http://localhost:5181, check the build
 npm run lint
 npm run format         # prettier
 npm run check:types    # types, tests included
-npm test               # node:test, 135 tests
+npm test               # node:test, 140 tests
+npm run check:seo      # verify the generated HTML, metadata, sitemap, links and assets in dist/
 ```
 
-Node 20.19 or newer is required (Vite 7). `dist/` is plain static output, so any host works and no `try_files` is needed (there are no routes, only anchors).
+Node 20.19 or newer is required (Vite 7). `dist/` is plain static output. The English page lives at `/`; the other nine translations live in locale directories such as `/ru/` and `/ar/`. Every directory contains its own `index.html`. The existing anchors still navigate within a page. Serve these files directly and return 404 for unknown paths; an SPA fallback is not needed.
 
 ## Deployment
 
@@ -58,7 +59,7 @@ Copy style: short plain sentences, no long dashes, no hype, no promises the app 
 
 ## Language and the translate prompt
 
-Selection order: `?lang=xx`, then the language chosen on the site (localStorage `kyrelix-site-locale`), then the first supported entry of `navigator.languages`, otherwise English.
+Each public URL has a stable language: `/` is English, `/ru/` is Russian, and so on. Browser and saved language preferences never override an explicit page. Old `?lang=xx` links still work: the client replaces the query parameter with the corresponding locale path and keeps other query parameters and anchors. A manual language change keeps the existing fade, updates history and metadata, and works with Back/Forward. Locale controls are ordinary links, so translations can also be opened in another tab or without JavaScript. The choice is still remembered in `kyrelix-site-locale`; the pure resolver retains browser/storage fallback for callers without a page locale.
 
 The browser's "Translate this page" prompt is suppressed only when we show a language we support ourselves. The `boot.ts` kernel does this: it is inlined into `<head>` (a plugin in `vite.config.ts`) and runs before the first paint, so the browser sees the final `lang`, `dir` and `translate` right away. It must not import anything.
 
@@ -108,4 +109,12 @@ The client does not meet WCAG AA for small text on glass; the site does: seconda
 - The roadmap has "Kyrelix for Business". In the client it exists only as translation keys, with no screens. If there will be no such product, delete the entry in `src/widgets/roadmap/Roadmap.tsx` and the `roadmap.business.*` keys in every dictionary.
 - The "Android and iOS: planned" line is based on the customer's word. Calls are marked "in development" because calls in the client are still a placeholder.
 - About encryption the site only says the connection is protected by TLS and that end-to-end encryption is not available yet. Do not call it E2EE until the client has it.
-- Not done: `og:image`, `canonical`, `sitemap.xml`, separate static pages per language.
+- SEO implementation and publishing checks: [docs/SEO.md](docs/SEO.md).
+
+## Static rendering and SEO
+
+`npm run build` first builds the normal client assets, then `scripts/prerender.ts` builds a temporary SSR entry under `node_modules/.cache/kyrelix-prerender` and renders the same React components for each existing dictionary. No server runtime or new dependency is required. `main.tsx` hydrates that HTML; locale stores are created separately for each render so translations cannot leak between pages.
+
+`src/shared/seo/metadata.ts` supplies both static and client metadata: translated title/description, self-canonical URLs, reciprocal hreflang links with `x-default`, Open Graph/Twitter image metadata, and JSON-LD for the organization, site, page and web application. Only existing product features are described. It also generates `robots.txt` and `sitemap.xml` from the published locale list. The canonical domain is `SITE_URL` in `src/shared/config/links.ts`.
+
+`public/og-image.png` is a 1200 × 630 preview of the existing site. The build runs `scripts/check-seo.ts` against the final files and fails on missing static content, broken asset paths, incorrect locale metadata or an invalid social image. The hero text is visible immediately, including without JavaScript; decorative 3D and the below-the-fold theme comparison retain their deferred loading.

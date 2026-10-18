@@ -1,6 +1,5 @@
-import { create } from "zustand";
+import { createStore } from "zustand/vanilla";
 import {
-  DEFAULT_LOCALE,
   STORAGE_KEYS,
   allowsMachineTranslation,
   applyLocaleAttributes,
@@ -9,10 +8,10 @@ import {
   type LocaleCode,
   type LocaleSource,
 } from "@/shared/boot/boot";
-import { en, type Dictionary } from "../dictionaries/en";
+import { languageUrl } from "@/shared/seo/localeUrls";
+import { type Dictionary } from "../dictionaries/en";
 import { loadDictionary } from "../loadDictionary";
 
-/** How long the old content fades out before the new dictionary is put in. */
 const FADE_OUT_MS = 160;
 
 interface LocaleState {
@@ -20,70 +19,84 @@ interface LocaleState {
   dict: Dictionary;
   source: LocaleSource;
   userSupported: boolean;
-  /** English is shown because the visitor's own language is not supported. */
   allowMachineTranslation: boolean;
-  /** True while the page fades out, swaps the dictionary and fades back in. */
   switching: boolean;
-  setLocale: (code: LocaleCode) => Promise<void>;
+  setLocale: (code: LocaleCode, updateHistory?: boolean) => Promise<void>;
 }
 
-const wait = (ms: number) =>
-  new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+/** A separate store per static render; getInitialState also seeds client hydration. */
+export function createLocaleStore(locale: LocaleCode, dict: Dictionary) {
+  let request = 0;
+  return createStore<LocaleState>((set, get) => ({
+    locale,
+    dict,
+    source: "url",
+    userSupported: true,
+    allowMachineTranslation: false,
+    switching: false,
 
-export const useLocaleStore = create<LocaleState>((set, get) => ({
-  locale: DEFAULT_LOCALE,
-  dict: en,
-  source: "default",
-  userSupported: false,
-  allowMachineTranslation: true,
-  switching: false,
+    setLocale: async (code, updateHistory = true) => {
+      const currentRequest = ++request;
+      const current = get();
+      if (code === current.locale) {
+        set({ switching: false });
+        return;
+      }
+      set({ switching: true });
+      try {
+        const [dictionary] = await Promise.all([
+          loadDictionary(code),
+          new Promise<void>((resolve) =>
+            window.setTimeout(resolve, FADE_OUT_MS),
+          ),
+        ]);
+        if (currentRequest !== request) return;
+        const allow = allowsMachineTranslation(code, get().userSupported);
+        if (updateHistory) {
+          const url = languageUrl(window.location.href, code, current.locale);
+          window.history.pushState(null, "", url);
+        }
+        writeStored(STORAGE_KEYS.locale, code);
+        applyLocaleAttributes(code, allow);
+        set({
+          locale: code,
+          dict: dictionary,
+          source: "saved",
+          allowMachineTranslation: allow,
+        });
+      } catch {
+        // A normal link still reaches the static translation if its dictionary chunk is unavailable.
+        if (updateHistory && currentRequest === request)
+          window.location.assign(
+            languageUrl(window.location.href, code, current.locale),
+          );
+      } finally {
+        if (currentRequest === request) set({ switching: false });
+      }
+    },
+  }));
+}
 
-  setLocale: async (code) => {
-    const { locale, switching, userSupported } = get();
-    if (code === locale || switching) return;
-    set({ switching: true });
-    try {
-      const [dict] = await Promise.all([
-        loadDictionary(code),
-        wait(FADE_OUT_MS),
-      ]);
-      const allow = allowsMachineTranslation(code, userSupported);
-      writeStored(STORAGE_KEYS.locale, code);
-      applyLocaleAttributes(code, allow);
-      set({
-        locale: code,
-        dict,
-        source: "saved",
-        allowMachineTranslation: allow,
-      });
-    } catch {
-      /* the dictionary could not be loaded: stay in the current language */
-    } finally {
-      set({ switching: false });
-    }
-  },
-}));
+export type LocaleStore = ReturnType<typeof createLocaleStore>;
 
-/** Called once from main.tsx with the state the inline boot script computed. */
-export async function initLocale(boot: BootState): Promise<void> {
+export async function initLocale(
+  boot: BootState,
+  pageLocale: LocaleCode,
+): Promise<LocaleStore> {
+  const dictionary = await loadDictionary(pageLocale);
+  const store = createLocaleStore(pageLocale, dictionary);
   try {
-    const dict = await loadDictionary(boot.locale);
-    useLocaleStore.setState({
+    store.setState({
       locale: boot.locale,
-      dict,
+      dict: await loadDictionary(boot.locale),
       source: boot.source,
       userSupported: boot.userSupported,
       allowMachineTranslation: boot.allowMachineTranslation,
     });
   } catch {
-    // dictionary unavailable: show English and keep machine translation possible
-    applyLocaleAttributes(DEFAULT_LOCALE, true);
-    useLocaleStore.setState({
-      locale: DEFAULT_LOCALE,
-      dict: en,
-      source: "default",
-      userSupported: boot.userSupported,
-      allowMachineTranslation: true,
-    });
+    // The complete static page remains usable even if another translation fails to download.
+    applyLocaleAttributes(pageLocale, true);
+    store.setState({ allowMachineTranslation: true });
   }
+  return store;
 }

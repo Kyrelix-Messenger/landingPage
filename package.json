@@ -9,11 +9,12 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && tsx scripts/prerender.ts && npm run check:seo",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
     "check:types": "tsc -p tsconfig.tests.json",
+    "check:seo": "tsx scripts/check-seo.ts",
     "test": "node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {

@@ -26,7 +26,7 @@ export function Hero() {
       <m.div
         className={styles.copy}
         variants={container}
-        initial="hidden"
+        initial={false}
         animate="show"
       >
         <m.h1 id="hero-title" className={styles.title} variants={item}>

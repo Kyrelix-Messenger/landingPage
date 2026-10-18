@@ -26,7 +26,12 @@ export default defineConfig([
     },
   },
   {
-    files: ["vite.config.ts", "tests/**/*.ts"],
+    files: [
+      "vite.config.ts",
+      "scripts/**/*.ts",
+      "src/entry-server.tsx",
+      "tests/**/*.ts",
+    ],
     languageOptions: { globals: globals.node },
     rules: { "react-refresh/only-export-components": "off" },
   },

@@ -3,7 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
-import { APP_HOST, APP_URL } from "../src/shared/config/links.ts";
+import { APP_HOST, APP_URL, SITE_URL } from "../src/shared/config/links.ts";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".css", ".html"]);
@@ -24,13 +24,14 @@ describe("web version address", () => {
     assert.equal(APP_URL, "https://web.kyrelix.org");
   });
 
-  it("is the only Kyrelix host written anywhere in the site", () => {
+  it("uses only the marketing and messenger hosts", () => {
+    const allowedHosts = new Set([APP_HOST, new URL(SITE_URL).hostname]);
     for (const file of sourceFiles()) {
       const text = readFileSync(file, "utf8");
       const hosts =
         text.match(/[a-z0-9.-]*kyrelix\.(?:org|com|net|app|io|ru)\b/gi) ?? [];
       for (const host of hosts)
-        assert.equal(host.toLowerCase(), "web.kyrelix.org", file);
+        assert.ok(allowedHosts.has(host.toLowerCase()), `${file}: ${host}`);
     }
   });
 

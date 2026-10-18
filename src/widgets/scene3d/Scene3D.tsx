@@ -4,6 +4,7 @@ import {
   lazy,
   useEffect,
   useState,
+  useSyncExternalStore,
   type ReactNode,
   memo,
 } from "react";
@@ -51,6 +52,11 @@ function isConstrained(): boolean {
   );
 }
 
+function subscribeVisibility(update: () => void): () => void {
+  document.addEventListener("visibilitychange", update);
+  return () => document.removeEventListener("visibilitychange", update);
+}
+
 /**
  * The 3D layer: glass shapes behind the page that react to the cursor and to the controls you use,
  * and press effects on top. Skipped for "reduced motion" (it is all movement), without WebGL and on
@@ -59,24 +65,15 @@ function isConstrained(): boolean {
 export const Scene3D = memo(function Scene3D() {
   const reducedMotion = useReducedMotion();
   const [ready, setReady] = useState(false);
-  const [pageVisible, setPageVisible] = useState(
+  // Use the same initial snapshot for static rendering and hydration, then read the real tab state.
+  const pageVisible = useSyncExternalStore(
+    subscribeVisibility,
     () => document.visibilityState === "visible",
+    () => true,
   );
 
-  // A decorative canvas must not keep a GPU context and a frame loop alive in a background tab.
   useEffect(() => {
-    const update = () => setPageVisible(document.visibilityState === "visible");
-    document.addEventListener("visibilitychange", update);
-    return () => document.removeEventListener("visibilitychange", update);
-  }, []);
-
-  useEffect(() => {
-    if (
-      !pageVisible ||
-      reducedMotion ||
-      isConstrained() ||
-      !canUseWebGL()
-    )
+    if (!pageVisible || reducedMotion || isConstrained() || !canUseWebGL())
       return;
     const start = () => setReady(true);
     if (typeof window.requestIdleCallback === "function") {

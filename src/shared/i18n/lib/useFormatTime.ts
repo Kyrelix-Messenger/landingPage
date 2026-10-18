@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { findLocale } from "@/shared/boot/boot";
-import { useLocaleStore } from "../model/localeStore";
+import { useLocaleStore } from "../model/localeContext";
 
 /** hh:mm in the visitor's language, the way the messenger formats message times. */
 export function useFormatTime(): (date: Date) => string {

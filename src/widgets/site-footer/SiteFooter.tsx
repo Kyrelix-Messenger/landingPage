@@ -1,13 +1,10 @@
 import { memo } from "react";
 import { LOCALES } from "@/shared/boot/boot";
 import { APP_HOST, APP_URL } from "@/shared/config/links";
-import {
-  useLocaleStore,
-  useTranslation,
-  type TranslationKey,
-} from "@/shared/i18n";
+import { useTranslation, type TranslationKey } from "@/shared/i18n";
 import { Brand } from "@/shared/ui/brand/Brand";
 import { Icon } from "@/shared/ui/icon/Icon";
+import { LocaleLink } from "@/shared/ui/locale-link/LocaleLink";
 import styles from "./SiteFooter.module.css";
 
 const SECTIONS: ReadonlyArray<{ href: string; label: TranslationKey }> = [
@@ -24,7 +21,6 @@ const SECTIONS: ReadonlyArray<{ href: string; label: TranslationKey }> = [
  */
 export const SiteFooter = memo(function SiteFooter() {
   const { t, locale } = useTranslation();
-  const setLocale = useLocaleStore((state) => state.setLocale);
 
   return (
     <footer className={styles.footer}>
@@ -68,16 +64,15 @@ export const SiteFooter = memo(function SiteFooter() {
           <ul className={styles.langs}>
             {LOCALES.map((item) => (
               <li key={item.code}>
-                <button
-                  type="button"
+                <LocaleLink
+                  locale={item.code}
                   className={styles.lang}
                   lang={item.html}
                   translate="no"
                   aria-current={item.code === locale ? "true" : undefined}
-                  onClick={() => void setLocale(item.code)}
                 >
                   {item.name}
-                </button>
+                </LocaleLink>
               </li>
             ))}
           </ul>

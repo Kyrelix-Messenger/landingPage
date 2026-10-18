@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { LazyMotion, MotionConfig, domAnimation } from "framer-motion";
 import { HomePage } from "@/pages/home/HomePage";
 import { useLocaleStore, useTranslation } from "@/shared/i18n";
+import { updateSeo } from "@/shared/seo/metadata";
 import { bindPointer } from "@/shared/lib/pointer";
 import { useSmoothAnchors } from "@/shared/lib/smoothScroll";
 import { Scene3D } from "@/widgets/scene3d/Scene3D";
@@ -10,12 +11,9 @@ import { SiteFooter } from "@/widgets/site-footer/SiteFooter";
 import { SiteHeader } from "@/widgets/site-header/SiteHeader";
 import styles from "./App.module.css";
 
-function setMeta(selector: string, content: string): void {
-  document.querySelector(selector)?.setAttribute("content", content);
-}
-
 export function App() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
+  const dictionary = useLocaleStore((state) => state.dict);
   const switching = useLocaleStore((state) => state.switching);
 
   useSmoothAnchors();
@@ -26,13 +24,10 @@ export function App() {
     document.documentElement.toggleAttribute("data-switching", switching);
   }, [switching]);
 
-  // the static <head> is English; keep title and descriptions in the active language
+  // Static HTML already has these tags; keep all metadata in sync with in-page language changes.
   useEffect(() => {
-    document.title = t("meta.title");
-    setMeta('meta[name="description"]', t("meta.description"));
-    setMeta('meta[property="og:title"]', t("meta.title"));
-    setMeta('meta[property="og:description"]', t("meta.description"));
-  }, [t]);
+    updateSeo(locale, dictionary);
+  }, [locale, dictionary]);
 
   return (
     // transforms are skipped for people who asked for less motion; fades and colour changes stay

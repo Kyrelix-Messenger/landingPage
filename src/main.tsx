@@ -1,9 +1,15 @@
 import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import "@/app/styles/index.css";
 import { App } from "@/app/App";
-import { bootstrap } from "@/shared/boot/boot";
-import { initLocale } from "@/shared/i18n";
+import {
+  bootstrap,
+  DEFAULT_LOCALE,
+  findLocale,
+  pathLocale,
+} from "@/shared/boot/boot";
+import { initLocale, LocaleProvider } from "@/shared/i18n";
+import { languageUrl } from "@/shared/seo/localeUrls";
 import { initTheme } from "@/shared/theme";
 
 async function start(): Promise<void> {
@@ -13,16 +19,33 @@ async function start(): Promise<void> {
   if (!boot) return;
 
   initTheme(boot);
-  // the dictionary is loaded before the first render, so the page never flashes English first
-  await initLocale(boot);
+  const pageLocale =
+    findLocale(document.documentElement.dataset.locale)?.code ??
+    pathLocale(window.location.pathname) ??
+    DEFAULT_LOCALE;
+  const store = await initLocale(boot, pageLocale);
+
+  // Preserve old ?lang links while keeping one shareable path for every language.
+  const activeLocale = store.getState().locale;
+  const url = languageUrl(window.location.href, activeLocale, pageLocale);
+  if (url.href !== window.location.href)
+    window.history.replaceState(null, "", url);
+  window.addEventListener("popstate", () => {
+    const locale = pathLocale(window.location.pathname) ?? DEFAULT_LOCALE;
+    void store.getState().setLocale(locale, false);
+  });
 
   const root = document.getElementById("root");
   if (!root) return;
-  createRoot(root).render(
+  const app = (
     <StrictMode>
-      <App />
-    </StrictMode>,
+      <LocaleProvider store={store}>
+        <App />
+      </LocaleProvider>
+    </StrictMode>
   );
+  if (root.dataset.prerendered === "true") hydrateRoot(root, app);
+  else createRoot(root).render(app);
 }
 
 void start();
