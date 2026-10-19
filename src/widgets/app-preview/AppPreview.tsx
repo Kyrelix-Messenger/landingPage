@@ -1,14 +1,8 @@
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import {
-  m,
-  useMotionTemplate,
-  useReducedMotion,
-  useTransform,
-} from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 import type { Theme } from "@/shared/boot/boot";
 import { useTranslation } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
-import { usePointerSpring } from "@/shared/lib/pointer";
 import { useThemeStore } from "@/shared/theme";
 import { Icon } from "@/shared/ui/icon/Icon";
 import { CHATS, chatById } from "./model/demoData";
@@ -20,7 +14,7 @@ import styles from "./AppPreview.module.css";
 
 interface AppPreviewProps {
   /**
-   * The hero instance reacts to the cursor, plays an opening conversation and accepts input.
+   * The hero instance plays an opening conversation and accepts input.
    * The static instance (theme comparison) shows the finished conversation and does nothing.
    */
   interactive?: boolean;
@@ -28,9 +22,8 @@ interface AppPreviewProps {
 }
 
 /**
- * A live miniature of the messenger: chat list, conversation and navigation rail, on the
- * messenger's own gradient. The cursor tilts the window and moves the spheres behind the glass
- * panels, so the glass visibly picks up the colour of whatever passes under it.
+ * A live miniature of the messenger on a static gradient. Decorative layers stay still;
+ * only the chat itself and its controls are interactive.
  */
 export function AppPreview({ interactive = true, className }: AppPreviewProps) {
   const { t } = useTranslation();
@@ -54,28 +47,9 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
     });
   }, [theme, siteTheme]);
   const demo = useDemoChat(interactive);
-  const { x, y } = usePointerSpring(interactive);
-
-  // window: turns towards the cursor; spheres move against it at different depths
-  const rotateY = useTransform(x, [-0.5, 0.5], [-5.5, 5.5]);
-  const rotateX = useTransform(y, [-0.5, 0.5], [4.5, -4.5]);
-  const innerAx = useTransform(x, (v) => v * -150);
-  const innerAy = useTransform(y, (v) => v * -120);
-  const innerBx = useTransform(x, (v) => v * 210);
-  const innerBy = useTransform(y, (v) => v * 160);
-  const outerAx = useTransform(x, (v) => v * -260);
-  const outerAy = useTransform(y, (v) => v * -200);
-  const outerBx = useTransform(x, (v) => v * 320);
-  const outerBy = useTransform(y, (v) => v * 240);
-  const glareX = useTransform(x, (v) => 50 + v * 150);
-  const glareY = useTransform(y, (v) => 40 + v * 150);
-  const glare = useMotionTemplate`radial-gradient(circle at ${glareX}% ${glareY}%, var(--glare), transparent 52%)`;
-  const shadowX = useTransform(x, (v) => v * -70);
-  const shadowY = useTransform(y, (v) => 44 + v * -36);
-  const boxShadow = useMotionTemplate`${shadowX}px ${shadowY}px 5rem -1.25rem var(--window-shadow)`;
 
   // Swapping the rail side slides the two columns past each other (FLIP). It measures offsetLeft,
-  // which ignores the 3D tilt of the ancestors; framer-motion's layout projection does not.
+  // so the panel animation stays independent of scrolling and container sizing.
   const reducedMotion = useReducedMotion();
   const contentRef = useRef<HTMLDivElement>(null);
   const railRef = useRef<HTMLDivElement>(null);
@@ -173,56 +147,37 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
     >
       {interactive && (
         <>
-          <m.div
-            className={cn(styles.glow, styles.glowA)}
-            style={{ x: outerAx, y: outerAy }}
-            aria-hidden="true"
-          />
-          <m.div
-            className={cn(styles.glow, styles.glowB)}
-            style={{ x: outerBx, y: outerBy }}
-            aria-hidden="true"
-          />
+          <div className={cn(styles.glow, styles.glowA)} aria-hidden="true" />
+          <div className={cn(styles.glow, styles.glowB)} aria-hidden="true" />
         </>
       )}
 
       <m.div
-        className={styles.tilt}
-        style={
-          interactive
-            ? { rotateX, rotateY, transformPerspective: 1800 }
-            : undefined
-        }
+        className={styles.frame}
         initial={interactive ? { opacity: 0, scale: 0.97 } : false}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
       >
-        <m.div
+        <div
           className={styles.window}
           role="group"
           aria-label={t("a11y.demo")}
           data-pane={pane}
-          data-fx={interactive ? "surface" : undefined}
           data-side={demo.side}
-          style={interactive ? { boxShadow } : undefined}
+          style={
+            interactive
+              ? { boxShadow: "0 44px 5rem -1.25rem var(--window-shadow)" }
+              : undefined
+          }
         >
-          <m.div
+          <div
             className={cn(styles.sphere, styles.sphereA)}
-            style={interactive ? { x: innerAx, y: innerAy } : undefined}
             aria-hidden="true"
           />
-          <m.div
+          <div
             className={cn(styles.sphere, styles.sphereB)}
-            style={interactive ? { x: innerBx, y: innerBy } : undefined}
             aria-hidden="true"
           />
-          {interactive && (
-            <m.div
-              className={styles.glare}
-              style={{ background: glare }}
-              aria-hidden="true"
-            />
-          )}
 
           <div className={styles.layout}>
             <div ref={contentRef} className={styles.content}>
@@ -238,7 +193,7 @@ export function AppPreview({ interactive = true, className }: AppPreviewProps) {
               />
             </div>
           </div>
-        </m.div>
+        </div>
       </m.div>
     </div>
   );

@@ -11,11 +11,7 @@ export function Cta() {
   return (
     <section className={styles.section} aria-labelledby="cta-title">
       <Reveal>
-        <GlowSurface
-          className={styles.panel}
-          glowClassName={styles.glow}
-          data-fx="surface"
-        >
+        <GlowSurface className={styles.panel} glowClassName={styles.glow}>
           <div className={styles.copy}>
             <h2 id="cta-title" className={styles.title}>
               {t("cta.title")}

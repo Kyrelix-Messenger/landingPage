@@ -29,9 +29,7 @@
   min-width: 0;
 }
 
-/* ---------- tile: glass with a glow that follows the cursor ----------
-   The glow is a pseudo-element with a static gradient, moved with transform (compositor only), so it
-   sticks to the cursor with no lag and no repaint. Hover only fades it in and out in 0.1 s. */
+/* ---------- feature tiles ---------- */
 .tile {
   position: relative;
   isolation: isolate;
@@ -58,7 +56,7 @@
   box-shadow: var(--glass-shadow), var(--shadow-pop);
 }
 
-/* the glow element (GlowSurface moves it with transform) */
+/* GlowSurface moves this gradient with the cursor. */
 .glow {
   position: absolute;
   top: 0;

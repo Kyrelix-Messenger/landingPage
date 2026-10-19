@@ -27,14 +27,13 @@
     opacity 0.45s ease !important;
 }
 
-/* soft colour behind the window; it moves against the cursor more than the window does */
+/* Static colour behind the window, shared by every device. */
 .glow {
   position: absolute;
   z-index: 0;
   border-radius: 50%;
   filter: blur(5rem);
   pointer-events: none;
-  will-change: transform;
 }
 
 .glowA {
@@ -53,10 +52,9 @@
   background: radial-gradient(closest-side, var(--glow-b), transparent 72%);
 }
 
-.tilt {
+.frame {
   position: relative;
   z-index: 1;
-  will-change: transform;
 }
 
 .window {
@@ -81,7 +79,6 @@
   border-radius: 50%;
   filter: blur(var(--layout-sphere-blur));
   pointer-events: none;
-  will-change: transform;
 }
 
 .sphereA {
@@ -98,13 +95,6 @@
   inset-inline-start: -22%;
   inset-block-end: -38%;
   background: var(--layout-sphere-left);
-}
-
-.glare {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
 }
 
 .layout {

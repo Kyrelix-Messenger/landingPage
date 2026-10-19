@@ -35,7 +35,7 @@ interface SlotProps {
 /**
  * One row of the conversation. The row grows from zero height, so everything above it slides up
  * smoothly instead of jumping, while the bubble itself rises and settles. Heights are animated
- * (not framer's layout projection), which stays correct inside the 3D-tilted window.
+ * independently of the surrounding window and panel layout.
  */
 function Slot({ own, fresh, hidden, children }: SlotProps) {
   const reduced = useReducedMotion();

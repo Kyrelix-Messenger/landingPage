@@ -27,9 +27,8 @@
     visibility 0s;
 }
 
-.mover {
+.position {
   position: absolute;
-  will-change: transform;
 }
 
 .topRight {
@@ -56,30 +55,6 @@
 
 .sphereB {
   background: var(--layout-sphere-left);
-}
-
-/* Only the visible theme gets compositor animation; the old version animated all four large,
-   blurred layers even though two were fully covered. */
-:global(html[data-theme="light"]) .layer[data-theme="light"] .sphereA,
-:global(html[data-theme="dark"]) .layer[data-theme="dark"] .sphereA {
-  animation: drift-a 24s ease-in-out infinite alternate;
-}
-
-:global(html[data-theme="light"]) .layer[data-theme="light"] .sphereB,
-:global(html[data-theme="dark"]) .layer[data-theme="dark"] .sphereB {
-  animation: drift-b 28s ease-in-out infinite alternate;
-}
-
-@keyframes drift-a {
-  to {
-    transform: translate3d(-4rem, 3.5rem, 0) scale(1.06);
-  }
-}
-
-@keyframes drift-b {
-  to {
-    transform: translate3d(5rem, -3rem, 0) scale(1.08);
-  }
 }
 
 @media (max-width: 768px) {

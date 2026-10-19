@@ -49,62 +49,6 @@ function inlineBoot(): Plugin {
   };
 }
 
-const SLIM_THREE = fileURLToPath(
-  new URL("./src/widgets/scene3d/three-slim.ts", import.meta.url),
-);
-
-/**
- * react-three-fiber registers the whole of three.js (`extend(THREE)`), which defeats tree shaking.
- * In production builds every import of "three" except the one inside three-slim.ts itself is
- * redirected to that file, which re-exports only the classes the site uses.
- */
-function slimThree(): Plugin {
-  return {
-    name: "kyrelix:slim-three",
-    apply: "build",
-    enforce: "pre",
-    resolveId(source, importer) {
-      if (source !== "three" || importer === SLIM_THREE) return null;
-      return SLIM_THREE;
-    },
-  };
-}
-
-/** Do not let shared dependencies of a manually named chunk pull WebGL into the entry graph. */
-function checkLazyScene(): Plugin {
-  let ssr = false;
-  return {
-    name: "kyrelix:check-lazy-scene",
-    apply: "build",
-    configResolved(config) {
-      ssr = !!config.build.ssr;
-    },
-    generateBundle(_options, bundle) {
-      if (ssr) return;
-      const visited = new Set<string>();
-      const check = (fileName: string): void => {
-        if (visited.has(fileName)) return;
-        visited.add(fileName);
-        const chunk = bundle[fileName];
-        if (!chunk || chunk.type !== "chunk") return;
-        for (const moduleId of chunk.moduleIds) {
-          if (
-            /\/node_modules\/(?:three\/|@react-three\/fiber\/|react-reconciler\/)/.test(
-              moduleId.replace(/\\/g, "/"),
-            )
-          )
-            this.error(
-              `A 3D dependency was included in the initial page bundle: ${moduleId}`,
-            );
-        }
-        chunk.imports.forEach(check);
-      };
-      for (const chunk of Object.values(bundle))
-        if (chunk.type === "chunk" && chunk.isEntry) check(chunk.fileName);
-    },
-  };
-}
-
 // https://vite.dev/config/
 export default defineConfig(({ isSsrBuild }) => ({
   base: "./",
@@ -113,16 +57,13 @@ export default defineConfig(({ isSsrBuild }) => ({
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
-  plugins: [react(), inlineBoot(), slimThree(), checkLazyScene()],
+  plugins: [react(), inlineBoot()],
   server: { port: 5180 },
   preview: { port: 5181 },
   build: {
-    // three.js is a lazy chunk (widgets/scene3d), loaded after the page is interactive
-    chunkSizeWarningLimit: 800,
     rollupOptions: {
       output: {
-        // The object form used to capture shared scheduler code inside vendor-r3f,
-        // making React DOM import the entire 3D renderer even on phones.
+        // Keep vendor chunks limited to the matching packages and preserve dynamic imports.
         onlyExplicitManualChunks: true,
         manualChunks: isSsrBuild
           ? undefined
@@ -138,7 +79,6 @@ export default defineConfig(({ isSsrBuild }) => ({
                 )
               )
                 return "vendor-ui";
-              // Let Rollup keep three.js, R3F and their private dependencies behind import("./Scene").
               return undefined;
             },
       },

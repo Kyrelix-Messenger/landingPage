@@ -24,7 +24,6 @@ export function Tile({ title, text, children, area, delay, wide }: TileProps) {
         as="article"
         className={cn(styles.tile, wide && styles.tileWide)}
         glowClassName={styles.glow}
-        data-fx="surface"
       >
         <header className={styles.tileHead}>
           <h3 className={styles.tileTitle}>{title}</h3>

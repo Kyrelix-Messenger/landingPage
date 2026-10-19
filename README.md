@@ -1,6 +1,6 @@
 # Kyrelix landing page
 
-A single-page site for the Kyrelix messenger. React 19, TypeScript, Vite 7, framer-motion, react-three-fiber. The design follows the messenger client: glass, gradient, spheres, light and dark themes, the same 10 languages. The hero has a live window of the messenger, and behind the page there is a WebGL layer that reacts to the cursor and to presses.
+A single-page site for the Kyrelix messenger. React 19, TypeScript, Vite 7 and framer-motion. The design follows the messenger client: glass, a static gradient, light and dark themes, and the same 10 languages. The hero has a live messenger demo. Feature cards and the final call to action keep their cursor spotlights.
 
 ## Getting started
 
@@ -12,7 +12,7 @@ npm run preview        # http://localhost:5181, check the build
 npm run lint
 npm run format         # prettier
 npm run check:types    # types, tests included
-npm test               # node:test, 140 tests
+npm test               # node:test, 125 tests
 npm run check:seo      # verify the generated HTML, metadata, sitemap, links and assets in dist/
 ```
 
@@ -33,15 +33,14 @@ src/
   widgets/        sections and larger blocks
     app-preview/  the live messenger window and the demo chat (pacing in model/pacing.ts)
     appearance/   the theme comparison
-    scene3d/      the WebGL layer (react-three-fiber)
     ...           hero, features, languages, roadmap, faq, cta, header, footer
   shared/
     boot/         language and theme kernel: inlined into <head>, runs before the first paint
     i18n/         dictionaries (en.ts is the source), language store
     theme/        theme store
-    lib/          fx.ts (bus between the page and the 3D layer), pointer.ts, smoothScroll.ts
+    lib/          smoothScroll.ts, cn.ts
     ui/           button, icons, avatar, bubble, GlowSurface, Reveal, Section
-tests/            dictionaries, language detection, links, chat pacing, theme comparison, 3D logic
+tests/            dictionaries, language detection, links, chat pacing, theme comparison, SEO
 ```
 
 ## Where to change things
@@ -75,34 +74,26 @@ The decision tables are in `tests/detection.test.ts`. Arabic: `dir="rtl"` on the
 
 Follows `prefers-color-scheme` live. The header button switches it by hand and remembers the choice (`kyrelix-site-theme`); going back to the system theme clears the override. The theme button inside the messenger window changes the theme of the window only; if the page theme changes afterwards, the window follows the page again.
 
-## 3D layer
+## Background and effects
 
-Two transparent canvases: glass shapes under the page and press effects over it. The shapes drift and lean away from the cursor, the two nearest ones swim up and light up when you hover a button, a link or a tile, and a press produces a flash and flying shards.
-
-- The page tells the scene what is happening through `src/shared/lib/fx.ts` (plain module state, no React). Every `a[href]`, `button`, `summary` and `[role="button"]` reacts on its own; `data-fx="primary"` or `data-fx="surface"` sets the kind explicitly.
-- The logic is separate from three.js and covered by tests: `orbField.ts`, `effectsSim.ts`, `math3d.ts`.
-- It loads lazily once the page is ready. It does not start with `prefers-reduced-motion`, without WebGL, on data saver, with a coarse pointer, or on devices reporting at most 4 GB of memory or four CPU cores. Any WebGL error leaves the plain CSS background. With `prefers-reduced-transparency` the shapes fade to half.
-- Size: react-three-fiber pulls in the whole of three (`extend(THREE)`), so production builds redirect imports of `three` to `src/widgets/scene3d/three-slim.ts` (the `slimThree` plugin in `vite.config.ts`), which lists only what is needed. The renderer and the scene now form one lazy chunk (about 189 KB gzip). `checkLazyScene` fails the build if a 3D dependency enters the initial static import graph. **If you add a new scene element** (for example `<boxGeometry>`), add its class to `three-slim.ts`, otherwise production fails with `Invalid constructor`; check it with `npm run build && npm run preview`.
-- `three` is pinned to `^0.182`: from 0.183 R3F calls the deprecated `THREE.Clock` and prints a console warning.
+The page and the messenger window keep their CSS gradients and static colour fields. Feature cards and the final call to action keep the cursor glow, moved with CSS transforms by `GlowSurface`. The floating 3D shapes, press particles, glare inside the hero chat, window tilt and background parallax were removed together with their unused source files and dependencies. Chat animations, panel switching, theme comparison and ordinary hover/focus feedback remain.
 
 ## Motion and transparency
 
-- `prefers-reduced-motion`: short colour and opacity changes stay; looping animations, parallax, the window tilt, movement and the whole 3D layer are turned off. Smooth scrolling to anchors is shortened, not removed.
+- `prefers-reduced-motion`: short colour and opacity changes stay; chat and panel transitions are shortened. Smooth scrolling to anchors is shortened, not removed.
 - `prefers-reduced-transparency`: the glass gets denser but stays glass. On Windows this is on when "Transparency effects" is off.
 - `framer-motion` is used through `LazyMotion` and `m.*` components (`strict` stops a full `motion` import from sneaking back in).
 
 ## Contrast
 
-The client does not meet WCAG AA for small text on glass; the site does: secondary text is darker in the light theme and lighter in the dark one, highlighted rows (`--row-lit-bg`) are lit less, and the header is denser than ordinary glass (`--header-bg`). The check was done on a screenshot with transparent text: the background colour under every text node against the text colour, threshold 4.5 (3 for large text). Scroll step 380 px, both themes, widths 1440 and 390, with and without `prefers-reduced-transparency`, with the 3D layer on: 0 violations. Repeat it after changing colours or the background.
+The client does not meet WCAG AA for small text on glass; the site does: secondary text is darker in the light theme and lighter in the dark one, highlighted rows (`--row-lit-bg`) are lit less, and the header is denser than ordinary glass (`--header-bg`). The check was done on a screenshot with transparent text: the background colour under every text node against the text colour, threshold 4.5 (3 for large text). Scroll step 380 px, both themes, widths 1440 and 390, with and without `prefers-reduced-transparency`: 0 violations. Repeat it after changing colours or the background.
 
 ## Technical decisions that are easy to break
 
 - `overflow: clip`, not `hidden`, in the preview window: `hidden` makes a scroll container, and focus or `scrollIntoView` can shift the contents.
-- Swapping the window panels is computed by hand (FLIP through `offsetLeft` and the Web Animations API), and chat rows grow by animating their height: framer-motion's `layout` breaks inside a tilted 3D parent.
-- The cursor glow is an element moved with `transform` (`GlowSurface`), not a CSS variable: a registered `@property` with `inherits: false` never reaches pseudo-elements, and with `inherits: true` every mouse move restyles the whole subtree.
+- Swapping the window panels is computed by hand (FLIP through `offsetLeft` and the Web Animations API), and chat rows grow by animating their height.
 - `Reveal` only lifts a block and never changes its opacity: an element with `opacity < 1` becomes a backdrop root, so the glass inside cannot see the page while the animation runs (the blocks used to be grey and then turn blue).
 - The header's glass sits on `::before`: a nested `backdrop-filter` cannot see the page.
-- The three.js camera is changed inside `useFrame` (`PixelCamera`), not in an effect: the React compiler rules forbid mutating a value returned from a hook.
 
 ## Before publishing
 
@@ -117,6 +108,6 @@ The client does not meet WCAG AA for small text on glass; the site does: seconda
 
 `src/shared/seo/metadata.ts` supplies both static and client metadata: translated title/description, self-canonical URLs, reciprocal hreflang links with `x-default`, Open Graph/Twitter image metadata, and JSON-LD for the organization, site, page and web application. Only existing product features are described. It also generates `robots.txt` and `sitemap.xml` from the published locale list. The canonical domain is `SITE_URL` in `src/shared/config/links.ts`.
 
-`public/og-image.png` is a 1200 × 630 preview of the existing site. The build runs `scripts/check-seo.ts` against the final files and fails on missing static content, broken asset paths, incorrect locale metadata or an invalid social image. The hero text is visible immediately, including without JavaScript; decorative 3D and the below-the-fold theme comparison retain their deferred loading.
+`public/og-image.png` is a 1200 × 630 preview of the existing site. The build runs `scripts/check-seo.ts` against the final files and fails on missing static content, broken asset paths, incorrect locale metadata or an invalid social image. The hero text is visible immediately, including without JavaScript. The below-the-fold theme comparison is created when it approaches the viewport.
 
 The prerender step inlines the existing built CSS into every locale document, so the first paint does not wait for a separate stylesheet request. The stylesheet currently has no external asset URLs; preserve that property when adding CSS assets, or update URL handling in the prerender step. The build also checks heading order and rejects render-blocking stylesheet links. Performance measurements and the GitHub Pages cache limitation are documented in [docs/PERFORMANCE.md](docs/PERFORMANCE.md).

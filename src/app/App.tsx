@@ -3,9 +3,7 @@ import { LazyMotion, MotionConfig, domAnimation } from "framer-motion";
 import { HomePage } from "@/pages/home/HomePage";
 import { useLocaleStore, useTranslation } from "@/shared/i18n";
 import { updateSeo } from "@/shared/seo/metadata";
-import { bindPointer } from "@/shared/lib/pointer";
 import { useSmoothAnchors } from "@/shared/lib/smoothScroll";
-import { Scene3D } from "@/widgets/scene3d/Scene3D";
 import { SiteBackground } from "@/widgets/site-background/SiteBackground";
 import { SiteFooter } from "@/widgets/site-footer/SiteFooter";
 import { SiteHeader } from "@/widgets/site-header/SiteHeader";
@@ -17,7 +15,6 @@ export function App() {
   const switching = useLocaleStore((state) => state.switching);
 
   useSmoothAnchors();
-  useEffect(() => bindPointer(), []);
 
   // the language switch fades the page out and in (see #root in base.css)
   useEffect(() => {
@@ -36,7 +33,6 @@ export function App() {
     <LazyMotion features={domAnimation} strict>
       <MotionConfig reducedMotion="user">
         <SiteBackground />
-        <Scene3D />
         <a className={styles.skip} href="#main">
           {t("a11y.skip")}
         </a>

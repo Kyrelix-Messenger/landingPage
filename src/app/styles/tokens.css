@@ -61,7 +61,6 @@
   --layout-sphere-blur: 5rem;
   --glow-a: rgba(96, 165, 250, 0.6);
   --glow-b: rgba(129, 140, 248, 0.5);
-  --glare: rgba(255, 255, 255, 0.38);
   --spot-a: rgba(255, 255, 255, 0.7);
   --spot-b: rgba(255, 255, 255, 0.28);
   --spot-border: rgba(59, 130, 246, 0.55);
@@ -164,7 +163,6 @@
   --layout-sphere-blur: 3.75rem;
   --glow-a: rgba(99, 102, 241, 0.5);
   --glow-b: rgba(59, 130, 246, 0.34);
-  --glare: rgba(165, 180, 252, 0.16);
   --spot-a: rgba(129, 140, 248, 0.3);
   --spot-b: rgba(129, 140, 248, 0.1);
   --spot-border: rgba(165, 180, 252, 0.7);

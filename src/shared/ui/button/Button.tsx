@@ -33,7 +33,6 @@ export function Button({
       <a
         className={classes}
         href={href}
-        data-fx={variant === "primary" ? "primary" : undefined}
         {...(external ? { target: "_blank", rel: "noopener" } : null)}
         onClick={onClick}
       >
@@ -42,12 +41,7 @@ export function Button({
     );
   }
   return (
-    <button
-      className={classes}
-      type="button"
-      data-fx={variant === "primary" ? "primary" : undefined}
-      onClick={onClick}
-    >
+    <button className={classes} type="button" onClick={onClick}>
       {children}
     </button>
   );

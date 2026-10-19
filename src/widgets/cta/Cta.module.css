@@ -21,7 +21,7 @@
   overflow: clip;
 }
 
-/* two soft colour fields, and the same cursor glow as the feature tiles */
+/* Static colour fields. */
 .panel::before {
   content: "";
   position: absolute;
